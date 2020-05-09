@@ -37,6 +37,7 @@ public class AppConfiguration {
     private final boolean enableOperatorChaining;
     private final boolean enableRebalance;
     private final long maxOutOfOrdernessMs;
+    private final String jobName;
 
     public AppConfiguration(String[] args) {
         params = ParameterTool.fromArgs(args);
@@ -50,6 +51,7 @@ public class AppConfiguration {
         enableOperatorChaining = getParams().getBoolean("enableOperatorChaining", true);
         enableRebalance = getParams().getBoolean("rebalance", true);
         maxOutOfOrdernessMs = getParams().getLong("maxOutOfOrdernessMs", 1000);
+        jobName = getParams().get("jobName");
     }
 
     @Override
@@ -63,6 +65,7 @@ public class AppConfiguration {
                 ", enableOperatorChaining=" + enableOperatorChaining +
                 ", enableRebalance=" + enableRebalance +
                 ", maxOutOfOrdernessMs=" + maxOutOfOrdernessMs +
+                ", jobName=" + jobName +
                 '}';
     }
 
@@ -108,6 +111,10 @@ public class AppConfiguration {
 
     public long getMaxOutOfOrdernessMs() {
         return maxOutOfOrdernessMs;
+    }
+
+    public String getJobName(String defaultJobName) {
+        return (jobName == null) ? defaultJobName : jobName;
     }
 
     public static class StreamConfig {

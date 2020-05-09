@@ -42,7 +42,7 @@ public class StreamToConsoleJob extends AbstractJob {
 
     public void run() {
         try {
-            final String jobName = StreamToConsoleJob.class.getName();
+            final String jobName = getConfig().getJobName(StreamToConsoleJob.class.getName());
             final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig();
             log.info("input stream: {}", inputStreamConfig);
             createStream(inputStreamConfig);

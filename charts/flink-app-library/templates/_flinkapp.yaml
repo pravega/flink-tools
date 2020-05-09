@@ -56,6 +56,8 @@ spec:
   parameters:
     - name: scope
       value: {{ $.Release.Namespace | quote }}
+    - name: jobName
+      value: {{ $.Release.Name | quote }}
     {{- range $key, $value := .Values.appParameters }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}

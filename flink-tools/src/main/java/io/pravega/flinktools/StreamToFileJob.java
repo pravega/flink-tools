@@ -47,7 +47,7 @@ public class StreamToFileJob extends AbstractJob {
 
     public void run() {
         try {
-            final String jobName = StreamToFileJob.class.getName();
+            final String jobName = getConfig().getJobName(StreamToFileJob.class.getName());
             final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input-");
             log.info("input stream: {}", inputStreamConfig);
             final String outputFilePath = getConfig().getParams().getRequired("output");
