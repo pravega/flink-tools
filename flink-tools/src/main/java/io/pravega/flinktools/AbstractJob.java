@@ -21,7 +21,7 @@ import org.apache.flink.api.java.LocalEnvironment;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
-import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -97,49 +97,56 @@ public abstract class AbstractJob implements Runnable {
 
     public StreamExecutionEnvironment initializeFlinkStreaming() {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        // Make parameters show in Flink UI.
+        env.getConfig().setGlobalJobParameters(getConfig().getParams());
+
         env.setParallelism(getConfig().getParallelism());
+        log.info("Parallelism={}, MaxParallelism={}", env.getParallelism(), env.getMaxParallelism());
+
         if (!getConfig().isEnableOperatorChaining()) {
             env.disableOperatorChaining();
         }
         if (getConfig().isEnableCheckpoint()) {
-            env.enableCheckpointing(getConfig().getCheckpointIntervalMs());
+            env.enableCheckpointing(getConfig().getCheckpointIntervalMs(), CheckpointingMode.EXACTLY_ONCE);
             env.getCheckpointConfig().setMinPauseBetweenCheckpoints(getConfig().getCheckpointIntervalMs() / 2);
             env.getCheckpointConfig().setCheckpointTimeout(getConfig().getCheckpointIntervalMs() * 2);
-            env.getCheckpointConfig().setFailOnCheckpointingErrors(true);
-        }
-        log.info("Parallelism={}, MaxParallelism={}", env.getParallelism(), env.getMaxParallelism());
-
-        // We can't use MemoryStateBackend because it can't store large state.
-        if (env instanceof LocalStreamEnvironment && (env.getStateBackend() == null || env.getStateBackend() instanceof MemoryStateBackend)) {
-            log.warn("Using FsStateBackend instead of MemoryStateBackend");
-            env.setStateBackend(new FsStateBackend("file:///tmp/flink-state", true));
+            env.getCheckpointConfig().setTolerableCheckpointFailureNumber(0);
         }
 
-        // Stop immediately on any errors.
+        // Configure environment for running in a local environment (e.g. in IntelliJ).
         if (env instanceof LocalStreamEnvironment) {
+            // We can't use MemoryStateBackend because it can't store large state.
+            if (env.getStateBackend() == null || env.getStateBackend() instanceof MemoryStateBackend) {
+                log.warn("Using FsStateBackend instead of MemoryStateBackend");
+                env.setStateBackend(new FsStateBackend("file:///tmp/flink-state", true));
+            }
+            // Stop immediately on any errors.
             log.warn("Using noRestart restart strategy");
             env.setRestartStrategy(RestartStrategies.noRestart());
-        }
-
-        if (env instanceof LocalStreamEnvironment) {
+            // Initialize Hadoop file system.
             FileSystem.initialize(getConfig().getParams().getConfiguration());
         }
-
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         return env;
     }
 
     public ExecutionEnvironment initializeFlinkBatch() {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+
+        // Make parameters show in Flink UI.
         env.getConfig().setGlobalJobParameters(getConfig().getParams());
-        if (env instanceof LocalEnvironment) {
-            FileSystem.initialize(getConfig().getParams().getConfiguration());
-        }
+
         int parallelism = getConfig().getParallelism();
         if (parallelism > 0) {
             env.setParallelism(parallelism);
         }
         log.info("Parallelism={}", env.getParallelism());
+
+        // Configure environment for running in a local environment (e.g. in IntelliJ).
+        if (env instanceof LocalEnvironment) {
+            // Initialize Hadoop file system.
+            FileSystem.initialize(getConfig().getParams().getConfiguration());
+        }
         return env;
     }
 }

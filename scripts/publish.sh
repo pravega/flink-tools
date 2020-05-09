@@ -8,5 +8,5 @@ echo Starting kubectl port forward
 kubectl port-forward --namespace ${NAMESPACE} service/repo 9092:80 &
 sleep 2s
 cd ${ROOT_DIR}
-./gradlew publish
+./gradlew publish -PincludeHadoopS3=false
 kill %kubectl

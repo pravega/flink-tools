@@ -52,8 +52,6 @@ dependencies {
     // connectors. These must be in the flinkShadowJar configuration!
     // --------------------------------------------------------------
     flinkShadowJar "io.pravega:pravega-connectors-flink-${flinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
-    flinkShadowJar "org.apache.commons:commons-math3:${apacheCommonsMathVersion}"
-    flinkShadowJar "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
