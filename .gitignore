@@ -1,0 +1,15 @@
+*.iml
+.attach_pid*
+.gradle/
+.idea/
+*.json
+*.log
+*.tgz
+*.zip
+.nfs*
+build/
+data/
+logs/
+out/
+__pycache__
+.~lock*

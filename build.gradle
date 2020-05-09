@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
+    id "ua.eshepelyuk.ManifestClasspath" version "1.0.0"
+}
+
+apply plugin: 'idea'
+
+configurations.all {
+    // Check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, "seconds"
+}
+
+subprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://oss.jfrog.org/jfrog-dependencies"
+        }
+        maven {
+            url "https://repository.apache.org/snapshots"
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
+
+}

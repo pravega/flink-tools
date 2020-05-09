@@ -1,0 +1,116 @@
+/*
+ * Copyright (c) 2019 Dell Inc., or its subsidiaries. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+
+// Based on https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/projectsetup/java_api_quickstart.html
+
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "application"
+apply plugin: "maven-publish"
+apply plugin: "com.github.johnrengelman.shadow"
+
+group = "io.pravega.flinktools"
+archivesBaseName = "pravega-flink-tools"
+description = "Pravega Flink Tools"
+// The default main class.
+mainClassName =  "io.pravega.flinktools.MainHelp"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// NOTE: We cannot use "compileOnly" or "shadow" configurations since then we could not run code
+// in the IDE or with "gradle run". We also cannot exclude transitive dependencies from the
+// shadowJar yet (see https://github.com/johnrengelman/shadow/issues/159).
+// Explicitly define the libraries we want to be included in the "flinkShadowJar" configuration!
+configurations {
+    flinkShadowJar // dependencies which go into the shadowJar
+
+    // always exclude these (also from transitive dependencies) since they are provided by Flink
+    flinkShadowJar.exclude group: 'org.apache.flink', module: 'force-shading'
+    flinkShadowJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    flinkShadowJar.exclude group: 'org.slf4j'
+    flinkShadowJar.exclude group: 'log4j'
+}
+
+dependencies {
+    // --------------------------------------------------------------
+    // Compile-time dependencies that should NOT be part of the
+    // shadow jar and are provided in the lib folder of Flink
+    // --------------------------------------------------------------
+    compile "org.apache.flink:flink-java:${flinkVersion}"
+    compile "org.apache.flink:flink-streaming-java_${flinkScalaVersion}:${flinkVersion}"
+
+    // --------------------------------------------------------------
+    // Dependencies that should be part of the shadow jar, e.g.
+    // connectors. These must be in the flinkShadowJar configuration!
+    // --------------------------------------------------------------
+    flinkShadowJar "io.pravega:pravega-connectors-flink-${flinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
+    flinkShadowJar "org.apache.commons:commons-math3:${apacheCommonsMathVersion}"
+    flinkShadowJar "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
+
+    if (includePravegaCredentials.toBoolean()) {
+        flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
+    }
+
+    if (includeHadoopS3.toBoolean()) {
+        compile "org.apache.flink:flink-s3-fs-hadoop:${flinkVersion}"
+        compile "com.amazonaws:aws-java-sdk:${awsSDKVersion}"
+        compile "org.apache.hadoop:hadoop-client:${hadoopVersion}"
+    }
+
+    compile "org.slf4j:slf4j-api:${slf4jApiVersion}"
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
+    compile "ch.qos.logback:logback-core:${logbackVersion}"
+    
+    testCompile "org.apache.flink:flink-test-utils_${flinkScalaVersion}:${flinkVersion}"
+    testCompile "junit:junit:${junitVersion}"
+}
+
+// make compileOnly dependencies available for tests:
+sourceSets {
+    main.compileClasspath += configurations.flinkShadowJar
+    main.runtimeClasspath += configurations.flinkShadowJar
+
+    test.compileClasspath += configurations.flinkShadowJar
+    test.runtimeClasspath += configurations.flinkShadowJar
+
+    javadoc.classpath += configurations.flinkShadowJar
+}
+
+run.classpath = sourceSets.main.runtimeClasspath
+
+jar {
+    manifest {
+        attributes 'Built-By': System.getProperty('user.name'),
+                'Build-Jdk': System.getProperty('java.version')
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.flinkShadowJar]
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username "$System.env.MAVEN_USERNAME"
+                password "$System.env.MAVEN_PASSWORD"
+            }
+            url projectRepoUrl
+        }
+    }
+
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+        }
+    }
+}
