@@ -4,7 +4,7 @@ appParameters:
   input-stream: "video1"
   output: "s3a://cf03-examples-fd3c09cd-e06a-4ff6-aa6a-e7675917394a/stream-to-file--examples-video1"
   # Change below value to force application to restart.
-  dummy: "1"
+  dummy: "3"
 flinkVersion: 1.10.0
 imageRef:
   name: 1.10.0-2.12
@@ -19,9 +19,10 @@ mavenCoordinate:
 parallelism: 1
 taskManager:
   replicas: 1
-  heap: "1073741824"      # 1Gi
-  memory: "2147483648"    # 2Gi
+  heap: "3221225472"      # 3Gi
+  memory: "4294967296"    # 4Gi
   cpu: 250m
   numberOfTaskSlots: 1
 clusterConfiguration:
+  taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
   taskmanager.memory.task.off-heap.size: 0

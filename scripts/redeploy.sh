@@ -13,5 +13,3 @@ for chart in ${CHARTS} ; do
 done
 
 ${ROOT_DIR}/scripts/deploy.sh
-watch "kubectl get FlinkApplication -n ${NAMESPACE} ; \
-kubectl get pod -o wide -n ${NAMESPACE}"

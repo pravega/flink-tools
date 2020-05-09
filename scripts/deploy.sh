@@ -11,3 +11,6 @@ for chart in ${CHARTS} ; do
         ${ROOT_DIR}/charts/${chart} \
         $@
 done
+
+watch "kubectl get FlinkApplication -n ${NAMESPACE} ; \
+kubectl get pod -o wide -n ${NAMESPACE}"
