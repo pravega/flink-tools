@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Copy a Pravega stream to a set of files on any Flink file system, including S3.
  * This uses Flink to provide exactly-once, recovery from failures, and parallelism.
+ * The stream is assumed to contain UTF-8 strings.
+ * When written to files, each event will be followed by a new line.
  */
 public class StreamToFileJob extends AbstractJob {
     private static Logger log = LoggerFactory.getLogger(StreamToFileJob.class);
