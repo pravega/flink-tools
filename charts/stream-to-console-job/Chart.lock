@@ -1,0 +1,6 @@
+dependencies:
+- name: flink-app-library
+  repository: file://../flink-app-library
+  version: 0.0.4
+digest: sha256:88eae419464cb71fb8a342d834cae0262579967b55fe3787468ea9df3e66bef9
+generated: "2020-04-30T05:04:38.151434995Z"

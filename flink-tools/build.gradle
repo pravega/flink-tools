@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Dell Inc., or its subsidiaries. All Rights Reserved.
+ * Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ apply plugin: "application"
 apply plugin: "maven-publish"
 apply plugin: "com.github.johnrengelman.shadow"
 
-group = "io.pravega.flinktools"
+group = "io.pravega"
 archivesBaseName = "pravega-flink-tools"
 description = "Pravega Flink Tools"
 // The default main class.
-mainClassName =  "io.pravega.flinktools.MainHelp"
+mainClassName =  "io.pravega.flinktools.Main"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 

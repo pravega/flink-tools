@@ -14,8 +14,10 @@ import io.pravega.client.admin.StreamInfo;
 import io.pravega.client.admin.StreamManager;
 import io.pravega.client.stream.Stream;
 import io.pravega.client.stream.StreamConfiguration;
+import io.pravega.client.stream.StreamCut;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.LocalEnvironment;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
@@ -66,6 +68,33 @@ public abstract class AbstractJob implements Runnable {
         }
     }
 
+    /**
+     * Convert UNBOUNDED start StreamCut to a concrete StreamCut, pointing to the current head or tail of the stream
+     * (depending on isStartAtTail).
+     */
+    public StreamCut resolveStartStreamCut(AppConfiguration.StreamConfig streamConfig) {
+        if (streamConfig.isStartAtTail()) {
+            return getStreamInfo(streamConfig.getStream()).getTailStreamCut();
+        } else if (streamConfig.getStartStreamCut() == StreamCut.UNBOUNDED) {
+            return getStreamInfo(streamConfig.getStream()).getHeadStreamCut();
+        } else {
+            return streamConfig.getStartStreamCut();
+        }
+    }
+
+    /**
+     * For bounded reads (indicated by isEndAtTail), convert UNBOUNDED end StreamCut to a concrete StreamCut,
+     * pointing to the current tail of the stream.
+     * For unbounded reads, returns UNBOUNDED.
+     */
+    public StreamCut resolveEndStreamCut(AppConfiguration.StreamConfig streamConfig) {
+        if (streamConfig.isEndAtTail()) {
+            return getStreamInfo(streamConfig.getStream()).getTailStreamCut();
+        } else {
+            return streamConfig.getEndStreamCut();
+        }
+    }
+
     public StreamExecutionEnvironment initializeFlinkStreaming() {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(getConfig().getParallelism());
@@ -103,7 +132,7 @@ public abstract class AbstractJob implements Runnable {
     public ExecutionEnvironment initializeFlinkBatch() {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         env.getConfig().setGlobalJobParameters(getConfig().getParams());
-        if (false) {
+        if (env instanceof LocalEnvironment) {
             FileSystem.initialize(getConfig().getParams().getConfiguration());
         }
         int parallelism = getConfig().getParallelism();

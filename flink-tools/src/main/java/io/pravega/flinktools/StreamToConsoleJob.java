@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Display the contents of a Pravega stream as UTF8 strings.
+ * Display the contents of a Pravega stream as UTF8 strings in the Task Manager stderr.
  */
 public class StreamToConsoleJob extends AbstractJob {
     private static Logger log = LoggerFactory.getLogger(StreamToConsoleJob.class);
@@ -43,18 +43,18 @@ public class StreamToConsoleJob extends AbstractJob {
     public void run() {
         try {
             final String jobName = StreamToConsoleJob.class.getName();
-            StreamExecutionEnvironment env = initializeFlinkStreaming();
-            createStream(getConfig().getInputStreamConfig());
-            StreamCut startStreamCut = StreamCut.UNBOUNDED;
-            if (getConfig().isStartAtTail()) {
-                startStreamCut = getStreamInfo(getConfig().getInputStreamConfig().getStream()).getTailStreamCut();
-            }
-            FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
+            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig();
+            log.info("input stream: {}", inputStreamConfig);
+            createStream(inputStreamConfig);
+            final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
+            final StreamCut endStreamCut = resolveEndStreamCut(inputStreamConfig);
+            final StreamExecutionEnvironment env = initializeFlinkStreaming();
+            final FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
                     .withPravegaConfig(getConfig().getPravegaConfig())
-                    .forStream(getConfig().getInputStreamConfig().getStream(), startStreamCut, StreamCut.UNBOUNDED)
+                    .forStream(inputStreamConfig.getStream(), startStreamCut, endStreamCut)
                     .withDeserializationSchema(new SimpleStringSchema())
                     .build();
-            DataStream<String> lines = env.addSource(flinkPravegaReader);
+            final DataStream<String> lines = env.addSource(flinkPravegaReader);
             lines.printToErr();
             log.info("Executing {} job", jobName);
             env.execute(jobName);

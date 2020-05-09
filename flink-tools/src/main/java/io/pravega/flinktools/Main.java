@@ -8,6 +8,11 @@
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-rootProject.name = "flink-tools"
+package io.pravega.flinktools;
 
-include "flink-tools"
+public class Main {
+    public static void main(String... args) {
+        System.err.println("flink-tools: You must specify a class name to execute.");
+        System.exit(1);
+    }
+}

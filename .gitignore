@@ -13,3 +13,4 @@ logs/
 out/
 __pycache__
 .~lock*
+*-local.sh
