@@ -1,0 +1,30 @@
+apiVersion: flink.nautilus.dellemc.com/v1beta1
+kind: FlinkCluster
+metadata:
+  labels:
+    name: {{ $.Release.Name }}
+  name: {{ $.Release.Name }}
+spec:
+  imageRef:
+    name: {{ $.Values.imageRef.name }}
+  localStorage:
+    replicas: {{ .Values.localStorage.replicas }}
+    volumeClaimTemplate:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: {{ .Values.localStorage.size | quote }}
+      storageClassName: standard
+  storage:
+    volumeSource:
+      persistentVolumeClaim:
+        claimName: data-project
+  zookeeperUrl: zookeeper-client:2181
+  jobManager:
+{{ toYaml .Values.jobManager | indent 4 }}
+  taskManager:
+{{ toYaml .Values.taskManager | indent 4 }}
+  configuration:
+{{ toYaml .Values.clusterConfiguration | indent 4 }}
+  logging:
+{{ toYaml .Values.logging | indent 4 }}

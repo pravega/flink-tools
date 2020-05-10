@@ -1,0 +1,5 @@
+appParameters:
+  # Files will be created and written with this interval.
+  checkpointIntervalMs: "120000"
+  input-stream: "sample1"
+  output: "s3a://desa-lab-vibranium-stream-copy-test/sample1"

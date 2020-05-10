@@ -1,0 +1,29 @@
+appParameters: {}
+flinkVersion: "1.10.0"
+imageRef:
+  name: "1.10.0-2.12"
+localStorage:
+  replicas: 2
+  size: "5G"
+#mainClass: Name of main class. REQUIRED.
+mavenCoordinate:
+  artifact: "flink-tools"
+  group: "io.pravega"
+  version: "0.1.0"
+parallelism: 1
+jobManager:
+  cpu: "250m"
+  memory: "1024M"
+  replicas: 1
+taskManager:
+  replicas: 1
+  heap: "3221225472"      # 3Gi
+  memory: "4294967296"    # 4Gi
+  cpu: "250m"
+  numberOfTaskSlots: 1
+clusterConfiguration:
+  taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
+  taskmanager.memory.task.off-heap.size: "0"
+logging: {}
+  #io.pravega: DEBUG
+  #io.pravega.connectors: DEBUG

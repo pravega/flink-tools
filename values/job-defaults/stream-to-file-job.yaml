@@ -1,0 +1,6 @@
+appParameters:
+  # Files will be created with this interval.
+  checkpointIntervalMs: "60000"
+  #input-stream: Name of Pravega stream. REQUIRED.
+  #output: Name of output file or directory. REQUIRED.
+mainClass: io.pravega.flinktools.StreamToFileJob
