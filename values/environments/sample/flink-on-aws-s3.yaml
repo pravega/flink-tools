@@ -1,3 +1,11 @@
+# Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # If you are using SDP with ECS S3 for long-term storage and you want to run a Flink job to access AWS S3,
 # you must use this file to configure Flink to store state on AWS S3 instead instead of ECS S3.
 # Otherwise, this file can be blank except for the final "---".
