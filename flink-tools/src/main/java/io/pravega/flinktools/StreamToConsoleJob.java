@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Display the contents of a Pravega stream as UTF8 strings in the Task Manager stderr.
  */
 public class StreamToConsoleJob extends AbstractJob {
-    private static Logger log = LoggerFactory.getLogger(StreamToConsoleJob.class);
+    final private static Logger log = LoggerFactory.getLogger(StreamToConsoleJob.class);
 
     /**
      * The entry point for Flink applications.
@@ -43,7 +43,7 @@ public class StreamToConsoleJob extends AbstractJob {
     public void run() {
         try {
             final String jobName = getConfig().getJobName(StreamToConsoleJob.class.getName());
-            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig();
+            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input-");
             log.info("input stream: {}", inputStreamConfig);
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);

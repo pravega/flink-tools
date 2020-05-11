@@ -77,10 +77,6 @@ public class AppConfiguration {
         return new StreamConfig(getPravegaConfig(), argPrefix,  getParams());
     }
 
-    public StreamConfig getStreamConfig() {
-        return getStreamConfig("");
-    }
-
     public PravegaConfig getPravegaConfig() {
         return pravegaConfig;
     }
