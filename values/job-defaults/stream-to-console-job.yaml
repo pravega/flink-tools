@@ -5,6 +5,4 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-appParameters: {}
-  #input-stream: Name of Pravega stream. REQUIRED.
 mainClass: io.pravega.flinktools.StreamToConsoleJob
