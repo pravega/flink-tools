@@ -10,6 +10,7 @@ appParameters:
   checkpointIntervalMs: "10000"
   input-stream: "sample1"
   input-startAtTail: "false"
+  input-endAtTail: "false"
   fixedRoutingKey: "0"
   output-stream: "sample1-copy1"
   output-minNumSegments: 1
