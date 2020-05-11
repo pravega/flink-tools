@@ -134,8 +134,8 @@ public class AppConfiguration {
             minNumSegments = params.getInt(argPrefix + "minNumSegments", 1);
             startStreamCut = StreamCut.from(params.get(argPrefix + "startStreamCut", StreamCut.UNBOUNDED.asText()));
             endStreamCut = StreamCut.from(params.get(argPrefix + "endStreamCut", StreamCut.UNBOUNDED.asText()));
-            startAtTail = params.getBoolean("startAtTail", false);
-            endAtTail = params.getBoolean("endAtTail", false);
+            startAtTail = params.getBoolean(argPrefix + "startAtTail", false);
+            endAtTail = params.getBoolean(argPrefix + "endAtTail", false);
         }
 
         @Override
