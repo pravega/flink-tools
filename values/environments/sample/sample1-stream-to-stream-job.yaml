@@ -1,0 +1,15 @@
+# Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+appParameters:
+  # Events are written in a transaction and committed with this period.
+  checkpointIntervalMs: "10000"
+  input-stream: "sample1"
+  input-startAtTail: "false"
+  fixedRoutingKey: "0"
+  output-stream: "sample1-copy1"
+  output-minNumSegments: 1
