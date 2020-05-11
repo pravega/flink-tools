@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * An abstract job class for Flink Pravega applications.
  */
 public abstract class AbstractJob implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(AbstractJob.class);
+    final private static Logger log = LoggerFactory.getLogger(AbstractJob.class);
 
     private final AppConfiguration config;
 

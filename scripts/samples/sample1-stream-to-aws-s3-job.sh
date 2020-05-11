@@ -8,7 +8,6 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Demonstrates how to create a Helm release to copy a stream to AWS S3.
-
 set -ex
 ROOT_DIR=$(dirname $0)/../..
 source ${ROOT_DIR}/scripts/env-local.sh
@@ -31,7 +30,6 @@ helm upgrade --install --timeout 600s --debug \
     ${RELEASE_NAME} \
     --namespace ${NAMESPACE} \
     ${ROOT_DIR}/charts/flink-tools \
-    -f ${ROOT_DIR}/charts/flink-tools/values.yaml \
     -f ${ROOT_DIR}/values/job-defaults/stream-to-file-job.yaml \
     -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml \
     -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/${RELEASE_NAME}.yaml \

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * When written to files, each event will be followed by a new line.
  */
 public class StreamToFileJob extends AbstractJob {
-    private static Logger log = LoggerFactory.getLogger(StreamToFileJob.class);
+    final private static Logger log = LoggerFactory.getLogger(StreamToFileJob.class);
 
     /**
      * The entry point for Flink applications.

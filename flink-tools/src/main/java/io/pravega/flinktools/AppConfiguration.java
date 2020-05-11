@@ -26,7 +26,7 @@ import static org.apache.flink.api.common.ExecutionConfig.PARALLELISM_UNKNOWN;
  * This class can be extended for job-specific configuration parameters.
  */
 public class AppConfiguration {
-    private static Logger log = LoggerFactory.getLogger(AppConfiguration.class);
+    final private static Logger log = LoggerFactory.getLogger(AppConfiguration.class);
 
     private final ParameterTool params;
     private final PravegaConfig pravegaConfig;
