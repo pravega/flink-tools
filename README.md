@@ -11,6 +11,20 @@ You may obtain a copy of the License at
 
 Pravega Flink Tools is a collection of Flink applications for working with Pravega streams.
 
+To learn more about Pravega, visit http://pravega.io
+
+## Prerequisites
+
+- Java 8.x
+
+- A [Pravega](http://pravega.io) installation
+
+- The deployment scripts in this project are designed to work with
+  Dell EMC Streaming Data Platform (SDP).
+  These Flink tools may also be used in other Flink installations,
+  including open-source, although the exact
+  deployment method depends on your environment and is not documented here.
+
 ## Continuously copying a Pravega stream to AWS S3
 
 ### Overview
@@ -43,7 +57,7 @@ for details.
 
 ### Instructions
 
-1. Copy the file scripts/env-sample.sh to scripts/env-local.sh.
+1. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
    This script will contain parameters for your environment.
    It is excluded from source control.
    Edit the file as follows.
@@ -56,22 +70,55 @@ for details.
       Recommended values are "test", "staging", "production".
 
    c. Enter your AWS S3 credentials (S3_ACCESS_KEY and S3_SECRET_KEY).
+   
+   Example file `scripts/env-local.sh`:
+   ```shell script
+   export NAMESPACE=examples   
+   export MAVEN_USERNAME=desdp   
+   export HELM_ENVIRONMENT=sample   
+   export S3_ACCESS_KEY=xxx
+   export S3_SECRET_KEY=xxx
+   ```
 
-2. Copy the sample values file from values/environments/sample/flink-on-aws-s3.yaml to 
-   values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml.
+2. Copy the sample values file from `values/environments/sample/flink-on-aws-s3.yaml` to 
+   `values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml`.
    Edit this file to use your AWS S3 bucket name (refer to instructions in the file).
    
-3. Copy the sample job script scripts/samples/sample1-stream-to-aws-s3-job.sh to 
-   scripts/jobs/my-stream-to-aws-s3-job.sh.
+3. Copy the sample job script `scripts/samples/sample1-stream-to-aws-s3-job.sh` to 
+   `scripts/jobs/my-stream-to-aws-s3-job.sh`.
    You may name this file anything, but you must use alphanumeric characters and dashes only.
    
-4. Copy the sample values file from values/environments/sample/sample1-stream-to-aws-s3-job.yaml to 
-   values/environments/${HELM_ENVIRONMENT}/my-stream-to-aws-s3-job.yaml.
+   Example file `scripts/jobs/my-stream-to-aws-s3-job.sh` (some sections omitted for clarity):
+   ```shell script
+    helm upgrade --install \
+        ${RELEASE_NAME} \
+        --namespace ${NAMESPACE} \
+        ${ROOT_DIR}/charts/flink-tools \
+        -f ${ROOT_DIR}/charts/flink-tools/values.yaml \
+        -f ${ROOT_DIR}/values/job-defaults/stream-to-file-job.yaml \
+        -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml \
+        -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/${RELEASE_NAME}.yaml \
+        --set clusterConfiguration."s3\.access-key"=${S3_ACCESS_KEY} \
+        --set clusterConfiguration."s3\.secret-key"=${S3_SECRET_KEY}
+   ```
+   
+4. Copy the sample values file from `values/environments/sample/sample1-stream-to-aws-s3-job.yaml` to 
+   `values/environments/${HELM_ENVIRONMENT}/my-stream-to-aws-s3-job.yaml`.
    The file name must match that of step 2.
    Edit this file to use your Pravega stream name, and AWS S3 bucket and path.
+   You can also change the checkpoint interval, which is how often events
+   will be written to the S3 bucket.
+   
+   Example file `values/environments/sample/my-stream-to-aws-s3-job.yaml`:
+   ```yaml
+    appParameters:
+      checkpointIntervalMs: "60000"
+      input-stream: "my-stream"
+      output: "s3a://my-bucket/my-stream"
+   ```
 
 5. Launch the Flink job using Helm.
-   ```
+   ```shell script
    scripts/samples/my-stream-to-aws-s3-job.sh
    ```
 
