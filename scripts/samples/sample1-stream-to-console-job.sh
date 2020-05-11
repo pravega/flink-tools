@@ -7,24 +7,12 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/../..
+export ROOT_DIR=$(dirname $0)/../..
 source ${ROOT_DIR}/scripts/env-local.sh
+export RELEASE_NAME=$(basename "$0" .sh)
+${ROOT_DIR}/scripts/prepare-helm-install.sh
 
-RELEASE_NAME=$(basename "$0" .sh)
-
-if [[ "${UNINSTALL}" == "1" ]]; then
-    helm del -n ${NAMESPACE} ${RELEASE_NAME} $@ || true
-fi
-
-if [[ "${PUBLISH}" != "0" ]]; then
-    ${ROOT_DIR}/scripts/publish.sh
-fi
-
-if [[ "${UNINSTALL}" == "1" ]]; then
-    kubectl wait --for=delete --timeout=900s FlinkCluster/${RELEASE_NAME} -n ${NAMESPACE} || true
-fi
-
-helm upgrade --install --timeout 600s --debug \
+helm upgrade --install --timeout 600s --debug --wait \
     ${RELEASE_NAME} \
     --namespace ${NAMESPACE} \
     ${ROOT_DIR}/charts/flink-tools \
