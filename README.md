@@ -55,7 +55,7 @@ Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
 
-### Instructions
+### Deploy to SDP using Helm
 
 1. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
    This script will contain parameters for your environment.
@@ -128,6 +128,28 @@ for details.
    ```
    helm del my-stream-to-aws-s3-job -n ${NAMESPACE}
    ```
+
+## Sample data generator
+
+### Deploy to SDP using the SDP UI
+
+1. Upload the artifact:
+   group: io.pravega
+   artifact: flink-tools
+   version: 0.1.0
+   
+2. Create New App.
+   Main Class: io.pravega.flinktools.SampleDataGeneratorJob
+   Flink Version: 1.10.0
+   Add Parameters:
+        scope: examples (This should match your SDP project name.)
+   Add Stream:
+        output-stream: sample1 (Select the stream to write to.)
+        
+3. Create Flink Cluster.
+   Flink Image: 1.10.0-2.12 (1.10.0)
+   Replicas: 1
+   Task Slots: 1     
 
 ## References
 
