@@ -48,12 +48,12 @@ public class StreamToStreamJob extends AbstractJob {
     public void run() {
         try {
             final String jobName = getConfig().getJobName(StreamToStreamJob.class.getName());
-            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input-");
+            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
             log.info("input stream: {}", inputStreamConfig);
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
             final StreamCut endStreamCut = resolveEndStreamCut(inputStreamConfig);
-            final AppConfiguration.StreamConfig outputStreamConfig = getConfig().getStreamConfig("output-");
+            final AppConfiguration.StreamConfig outputStreamConfig = getConfig().getStreamConfig("output");
             log.info("output stream: {}", outputStreamConfig);
             createStream(outputStreamConfig);
             final String fixedRoutingKey = getConfig().getParams().get("fixedRoutingKey", "");
@@ -61,7 +61,7 @@ public class StreamToStreamJob extends AbstractJob {
 
             final StreamExecutionEnvironment env = initializeFlinkStreaming();
             final FlinkPravegaReader<byte[]> flinkPravegaReader = FlinkPravegaReader.<byte[]>builder()
-                    .withPravegaConfig(getConfig().getPravegaConfig())
+                    .withPravegaConfig(inputStreamConfig.getPravegaConfig())
                     .forStream(inputStreamConfig.getStream(), startStreamCut, endStreamCut)
                     .withDeserializationSchema(new ByteArrayDeserializationFormat())
                     .build();
@@ -71,7 +71,7 @@ public class StreamToStreamJob extends AbstractJob {
                     .name("pravega-reader");
 
             final FlinkPravegaWriter<byte[]> sink = FlinkPravegaWriter.<byte[]>builder()
-                    .withPravegaConfig(getConfig().getPravegaConfig())
+                    .withPravegaConfig(outputStreamConfig.getPravegaConfig())
                     .forStream(outputStreamConfig.getStream())
                     .withSerializationSchema(new ByteArraySerializationFormat())
                     .withEventRouter(event -> fixedRoutingKey)

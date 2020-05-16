@@ -12,7 +12,6 @@ package io.pravega.flinktools;
 
 import io.pravega.client.admin.StreamInfo;
 import io.pravega.client.admin.StreamManager;
-import io.pravega.client.stream.Stream;
 import io.pravega.client.stream.StreamConfiguration;
 import io.pravega.client.stream.StreamCut;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -48,7 +47,7 @@ public abstract class AbstractJob implements Runnable {
      * If the stream exists, it is unchanged.
      */
     public void createStream(AppConfiguration.StreamConfig streamConfig) {
-        try (StreamManager streamManager = StreamManager.create(getConfig().getPravegaConfig().getClientConfig())) {
+        try (StreamManager streamManager = StreamManager.create(streamConfig.getPravegaConfig().getClientConfig())) {
             StreamConfiguration streamConfiguration = StreamConfiguration.builder()
                     .scalingPolicy(streamConfig.getScalingPolicy())
                     .build();
@@ -62,9 +61,9 @@ public abstract class AbstractJob implements Runnable {
     /**
      * Get head and tail stream cuts for a Pravega stream.
      */
-    public StreamInfo getStreamInfo(Stream stream) {
-        try (StreamManager streamManager = StreamManager.create(getConfig().getPravegaConfig().getClientConfig())) {
-            return streamManager.getStreamInfo(stream.getScope(), stream.getStreamName());
+    public StreamInfo getStreamInfo(AppConfiguration.StreamConfig streamConfig) {
+        try (StreamManager streamManager = StreamManager.create(streamConfig.getPravegaConfig().getClientConfig())) {
+            return streamManager.getStreamInfo(streamConfig.getStream().getScope(), streamConfig.getStream().getStreamName());
         }
     }
 
@@ -74,9 +73,9 @@ public abstract class AbstractJob implements Runnable {
      */
     public StreamCut resolveStartStreamCut(AppConfiguration.StreamConfig streamConfig) {
         if (streamConfig.isStartAtTail()) {
-            return getStreamInfo(streamConfig.getStream()).getTailStreamCut();
+            return getStreamInfo(streamConfig).getTailStreamCut();
         } else if (streamConfig.getStartStreamCut() == StreamCut.UNBOUNDED) {
-            return getStreamInfo(streamConfig.getStream()).getHeadStreamCut();
+            return getStreamInfo(streamConfig).getHeadStreamCut();
         } else {
             return streamConfig.getStartStreamCut();
         }
@@ -89,7 +88,7 @@ public abstract class AbstractJob implements Runnable {
      */
     public StreamCut resolveEndStreamCut(AppConfiguration.StreamConfig streamConfig) {
         if (streamConfig.isEndAtTail()) {
-            return getStreamInfo(streamConfig.getStream()).getTailStreamCut();
+            return getStreamInfo(streamConfig).getTailStreamCut();
         } else {
             return streamConfig.getEndStreamCut();
         }

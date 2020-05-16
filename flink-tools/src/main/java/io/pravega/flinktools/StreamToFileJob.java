@@ -50,7 +50,7 @@ public class StreamToFileJob extends AbstractJob {
     public void run() {
         try {
             final String jobName = getConfig().getJobName(StreamToFileJob.class.getName());
-            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input-");
+            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
             log.info("input stream: {}", inputStreamConfig);
             final String outputFilePath = getConfig().getParams().getRequired("output");
             log.info("output file: {}", outputFilePath);
@@ -60,7 +60,7 @@ public class StreamToFileJob extends AbstractJob {
             final StreamExecutionEnvironment env = initializeFlinkStreaming();
 
             final FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
-                    .withPravegaConfig(getConfig().getPravegaConfig())
+                    .withPravegaConfig(inputStreamConfig.getPravegaConfig())
                     .forStream(inputStreamConfig.getStream(), startStreamCut, endStreamCut)
                     .withDeserializationSchema(new SimpleStringSchema())
                     .build();

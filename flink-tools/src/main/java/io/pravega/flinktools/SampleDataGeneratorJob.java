@@ -62,7 +62,7 @@ public class SampleDataGeneratorJob extends AbstractJob {
             log.info("numSensors: {}", numSensors);
             final int dataSizeBytes = getConfig().getParams().getInt("dataSizeBytes", 10);
             log.info("dataSizeBytes: {}", dataSizeBytes);
-            final AppConfiguration.StreamConfig outputStreamConfig = getConfig().getStreamConfig("output-");
+            final AppConfiguration.StreamConfig outputStreamConfig = getConfig().getStreamConfig("output");
             log.info("output stream: {}", outputStreamConfig);
             createStream(outputStreamConfig);
 
@@ -94,7 +94,7 @@ public class SampleDataGeneratorJob extends AbstractJob {
 
             // Write to Pravega as JSON.
             FlinkPravegaWriter<SampleEvent> sink = FlinkPravegaWriter.<SampleEvent>builder()
-                    .withPravegaConfig(getConfig().getPravegaConfig())
+                    .withPravegaConfig(outputStreamConfig.getPravegaConfig())
                     .forStream(outputStreamConfig.getStream())
                     .withSerializationSchema(new JsonSerializationSchema<>())
                     .withEventRouter(frame -> String.format("%d", frame.sensorId))

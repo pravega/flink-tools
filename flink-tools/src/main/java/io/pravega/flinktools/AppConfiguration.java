@@ -18,6 +18,9 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.apache.flink.api.common.ExecutionConfig.PARALLELISM_DEFAULT;
 import static org.apache.flink.api.common.ExecutionConfig.PARALLELISM_UNKNOWN;
 
@@ -29,7 +32,6 @@ public class AppConfiguration {
     final private static Logger log = LoggerFactory.getLogger(AppConfiguration.class);
 
     private final ParameterTool params;
-    private final PravegaConfig pravegaConfig;
     private final int parallelism;
     private final int readerParallelism;
     private final long checkpointIntervalMs;
@@ -42,8 +44,6 @@ public class AppConfiguration {
     public AppConfiguration(String[] args) {
         params = ParameterTool.fromArgs(args);
         log.info("Parameter Tool: {}", getParams().toMap());
-        String defaultScope = getParams().getRequired("scope");
-        pravegaConfig = PravegaConfig.fromParams(getParams()).withDefaultScope(defaultScope);
         parallelism = getParams().getInt("parallelism", PARALLELISM_UNKNOWN);
         readerParallelism = getParams().getInt("readerParallelism", PARALLELISM_DEFAULT);
         checkpointIntervalMs = getParams().getLong("checkpointIntervalMs", 10000);
@@ -57,8 +57,7 @@ public class AppConfiguration {
     @Override
     public String toString() {
         return "AppConfiguration{" +
-                "pravegaConfig=" + pravegaConfig +
-                ", parallelism=" + parallelism +
+                "parallelism=" + parallelism +
                 ", readerParallelism=" + readerParallelism +
                 ", checkpointIntervalMs=" + checkpointIntervalMs +
                 ", enableCheckpoint=" + enableCheckpoint +
@@ -73,12 +72,8 @@ public class AppConfiguration {
         return params;
     }
 
-    public StreamConfig getStreamConfig(final String argPrefix) {
-        return new StreamConfig(getPravegaConfig(), argPrefix,  getParams());
-    }
-
-    public PravegaConfig getPravegaConfig() {
-        return pravegaConfig;
+    public StreamConfig getStreamConfig(final String argName) {
+        return new StreamConfig(argName,  getParams());
     }
 
     public int getParallelism() {
@@ -115,6 +110,7 @@ public class AppConfiguration {
 
     public static class StreamConfig {
         private final Stream stream;
+        private final PravegaConfig pravegaConfig;
         private final int targetRate;
         private final int scaleFactor;
         private final int minNumSegments;
@@ -123,21 +119,46 @@ public class AppConfiguration {
         private final boolean startAtTail;
         private final boolean endAtTail;
 
-        public StreamConfig(PravegaConfig pravegaConfig, String argPrefix, ParameterTool params) {
-            stream = pravegaConfig.resolve(params.getRequired(argPrefix + "stream"));
-            targetRate = params.getInt(argPrefix + "targetRate", 10*1024*1024);  // data rate in KiB/sec
-            scaleFactor = params.getInt(argPrefix + "scaleFactor", 2);
-            minNumSegments = params.getInt(argPrefix + "minNumSegments", 1);
-            startStreamCut = StreamCut.from(params.get(argPrefix + "startStreamCut", StreamCut.UNBOUNDED.asText()));
-            endStreamCut = StreamCut.from(params.get(argPrefix + "endStreamCut", StreamCut.UNBOUNDED.asText()));
-            startAtTail = params.getBoolean(argPrefix + "startAtTail", false);
-            endAtTail = params.getBoolean(argPrefix + "endAtTail", false);
+        public StreamConfig(final String argName, final ParameterTool globalParams) {
+            final String argPrefix = argName.isEmpty() ? argName : argName + "-";
+
+            // Build ParameterTool parameters with stream-specific parameters copied to global parameters.
+            Map<String, String> streamParamsMap = new HashMap<>(globalParams.toMap());
+            globalParams.toMap().forEach((k, v) -> {
+                if (k.startsWith(argPrefix)) {
+                    streamParamsMap.put(k.substring(argPrefix.length()), v);
+                }
+            });
+            ParameterTool params = ParameterTool.fromMap(streamParamsMap);
+            final String streamSpec = globalParams.getRequired(argPrefix + "stream");
+            log.info("Parameters for {} stream {}: {}", argName, streamSpec, params.toMap());
+
+            // Build Pravega config for this stream.
+            PravegaConfig tempPravegaConfig = PravegaConfig.fromParams(params);
+            stream = tempPravegaConfig.resolve(streamSpec);
+            // Copy stream's scope to default scope.
+            tempPravegaConfig = tempPravegaConfig.withDefaultScope(stream.getScope());
+            // Add credentials.
+            final String username = params.get("username", "");
+            final String password = params.get("password", "");
+            if (!username.isEmpty() || !password.isEmpty()) {
+                tempPravegaConfig = tempPravegaConfig.withCredentials(new DefaultCredentials(password, username));
+            }
+            pravegaConfig = tempPravegaConfig;
+            targetRate = params.getInt("targetRate", 10*1024*1024);  // data rate in KiB/sec
+            scaleFactor = params.getInt("scaleFactor", 2);
+            minNumSegments = params.getInt("minNumSegments", 1);
+            startStreamCut = StreamCut.from(params.get("startStreamCut", StreamCut.UNBOUNDED.asText()));
+            endStreamCut = StreamCut.from(params.get("endStreamCut", StreamCut.UNBOUNDED.asText()));
+            startAtTail = params.getBoolean( "startAtTail", false);
+            endAtTail = params.getBoolean("endAtTail", false);
         }
 
         @Override
         public String toString() {
             return "StreamConfig{" +
                     "stream=" + stream +
+                    ", pravegaConfig=" + pravegaConfig.getClientConfig() +
                     ", targetRate=" + targetRate +
                     ", scaleFactor=" + scaleFactor +
                     ", minNumSegments=" + minNumSegments +
@@ -150,6 +171,10 @@ public class AppConfiguration {
 
         public Stream getStream() {
             return stream;
+        }
+
+        public PravegaConfig getPravegaConfig() {
+            return pravegaConfig;
         }
 
         public ScalingPolicy getScalingPolicy() {

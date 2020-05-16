@@ -43,14 +43,14 @@ public class StreamToConsoleJob extends AbstractJob {
     public void run() {
         try {
             final String jobName = getConfig().getJobName(StreamToConsoleJob.class.getName());
-            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input-");
+            final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
             log.info("input stream: {}", inputStreamConfig);
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
             final StreamCut endStreamCut = resolveEndStreamCut(inputStreamConfig);
             final StreamExecutionEnvironment env = initializeFlinkStreaming();
             final FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
-                    .withPravegaConfig(getConfig().getPravegaConfig())
+                    .withPravegaConfig(inputStreamConfig.getPravegaConfig())
                     .forStream(inputStreamConfig.getStream(), startStreamCut, endStreamCut)
                     .withDeserializationSchema(new SimpleStringSchema())
                     .build();
