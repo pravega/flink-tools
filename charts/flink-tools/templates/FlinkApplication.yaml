@@ -19,8 +19,6 @@ spec:
   mavenCoordinate: {{ .Values.mavenCoordinate.group }}:{{ .Values.mavenCoordinate.artifact }}:{{ .Values.mavenCoordinate.version }}
   parallelism: {{ .Values.parallelism }}
   parameters:
-    - name: scope
-      value: {{ $.Release.Namespace | quote }}
     - name: jobName
       value: {{ $.Release.Name | quote }}
     {{- range $key, $value := .Values.appParameters }}

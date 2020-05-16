@@ -9,12 +9,16 @@ appParameters:
   # Events are written in a transaction and committed with this period.
   checkpointIntervalMs: "10000"
 
+  # Set to false to allowing viewing metrics in Flink UI (may reduce performance).
+  enableOperatorChaining: "false"
+
   # Read events from this stream.
   input-stream: "examples/sample1"
   input-startAtTail: "false"
   input-endAtTail: "false"
 
   # Below settings only required if input stream is on a remote Pravega installation.
+  #scope: "examples"
   #input-controller: ""
   #input-username: ""
   #input-password: ""

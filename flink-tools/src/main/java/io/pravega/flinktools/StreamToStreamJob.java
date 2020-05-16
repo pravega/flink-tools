@@ -68,7 +68,7 @@ public class StreamToStreamJob extends AbstractJob {
             final DataStream<byte[]> events = env
                     .addSource(flinkPravegaReader)
                     .uid("pravega-reader")
-                    .name("pravega-reader");
+                    .name("Pravega reader from " + inputStreamConfig.getStream().getScopedName());
 
             final FlinkPravegaWriter<byte[]> sink = FlinkPravegaWriter.<byte[]>builder()
                     .withPravegaConfig(outputStreamConfig.getPravegaConfig())
@@ -80,7 +80,7 @@ public class StreamToStreamJob extends AbstractJob {
             events
                     .addSink(sink)
                     .uid("pravega-writer")
-                    .name("pravega-writer");
+                    .name("Pravega writer to " + outputStreamConfig.getStream().getScopedName());
 
             log.info("Executing {} job", jobName);
             env.execute(jobName);

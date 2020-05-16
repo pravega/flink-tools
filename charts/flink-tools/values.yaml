@@ -6,9 +6,17 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 appParameters: {}
-flinkVersion: "1.10.0"
+
+# For Flink 1.9, SDP 1.0
+flinkVersion: "1.9.0"
 imageRef:
-  name: "1.10.0-2.12"
+  name: "1.9.0"
+
+# For Flink 1.10, SDP 1.1
+#flinkVersion: "1.10.0"
+#imageRef:
+#  name: "1.10.0-2.12"
+
 localStorage:
   replicas: 2
   size: "5G"
