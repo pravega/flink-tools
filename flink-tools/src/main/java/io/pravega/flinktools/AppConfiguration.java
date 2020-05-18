@@ -13,6 +13,7 @@ package io.pravega.flinktools;
 import io.pravega.client.stream.ScalingPolicy;
 import io.pravega.client.stream.Stream;
 import io.pravega.client.stream.StreamCut;
+import io.pravega.client.stream.impl.DefaultCredentials;
 import io.pravega.connectors.flink.PravegaConfig;
 import io.pravega.flinktools.util.PravegaKeycloakCredentialsFromString;
 import org.apache.flink.api.java.utils.ParameterTool;
