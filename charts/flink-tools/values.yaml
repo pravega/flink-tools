@@ -8,14 +8,14 @@
 appParameters: {}
 
 # For Flink 1.9, SDP 1.0
-flinkVersion: "1.9.0"
-imageRef:
-  name: "1.9.0"
+#flinkVersion: "1.9.0"
+#imageRef:
+#  name: "1.9.0"
 
 # For Flink 1.10, SDP 1.1
-#flinkVersion: "1.10.0"
-#imageRef:
-#  name: "1.10.0-2.12"
+flinkVersion: "1.10.0"
+imageRef:
+  name: "1.10.0-2.12"
 
 localStorage:
   replicas: 2
