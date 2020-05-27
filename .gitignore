@@ -11,6 +11,7 @@ build/
 data/
 logs/
 out/
+values/local/
 __pycache__
 .~lock*
 *-local.sh
