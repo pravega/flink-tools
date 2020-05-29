@@ -1,0 +1,18 @@
+# Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+apiVersion: flink.nautilus.dellemc.com/v1beta1
+kind: ClusterFlinkImage
+metadata:
+  name: 1.10.0-2.12-hadoop2.8.3
+spec:
+  apiversion: v1
+  deployerVersion: v2
+  docker:
+    image: claudiofahey/flink:1.10.0-2.12-1.1-W8-5-8494a1629-hadoop2.8.3
+    pullPolicy: Always
+  flinkVersion: 1.10.0
