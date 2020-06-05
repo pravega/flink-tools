@@ -9,7 +9,19 @@ You may obtain a copy of the License at
 -->
 # Pravega Flink Tools
 
-Pravega Flink Tools is a collection of Flink applications for working with Pravega streams.
+Pravega Flink Tools is a collection of Apache Flink applications for working with Pravega streams.
+
+It provides the following Flink jobs:
+
+- **stream-to-file**: Continuously copy a Pravega stream to files on S3, HDFS, or any other Flink-supported file system
+- **stream-to-stream**: Continuously copy a Pravega stream to another Pravega stream, even on a different Pravega cluster
+- **stream-to-console**: Continuously show the contents of a Pravega stream in a human-readable log file
+- **sample-data-generator**: Continuously write synthetic data to Pravega for testing
+
+Each job uses Flink checkpoints to provide exactly-once guarantees, ensuring that events
+are never missed nor duplicated.
+They automatically recover from failures and resume where they left off.
+They can use parallelism for high-volume streams with multiple segments.
 
 To learn more about Pravega, visit http://pravega.io
 
@@ -23,20 +35,21 @@ To learn more about Pravega, visit http://pravega.io
   Dell EMC Streaming Data Platform (SDP).
   These Flink tools may also be used in other Flink installations,
   including open-source, although the exact
-  deployment method depends on your environment and is not documented here.
+  deployment methods depend on your environment and are not documented here.
 
-## Continuously copying a Pravega stream to AWS S3
+## Stream-to-file: Continuously copying a Pravega stream to files
 
 ### Overview
 
-This Flink job will continuously copy a Pravega stream to a set of objects on AWS S3.
+This Flink job will continuously copy a Pravega stream to a set of files 
+on S3, HDFS, or any other Flink-supported file system.
 It uses Flink checkpoints to provide exactly-once guarantees, ensuring that events
 are never missed nor duplicated.
 It automatically recovers from failures and resumes where it left off.
 It can use parallelism for high-volume streams with multiple segments.
 
 By default, it writes a new file every 1 minute. 
-Objects are written using the following directory structure.
+Files are written using the following directory structure.
 ```
 sample1/2020-05-10--18/part-0-0
 sample1/2020-05-10--18/part-0-1
@@ -57,99 +70,97 @@ for details.
 
 ### Deploy to SDP using Helm
 
-1. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
+1. If you will be using HDFS, you must install the Flink cluster image that includes the Hadoop client library.
+   ```shell script
+   scripts/flink-image-install.sh
+   ```
+
+2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
    This script will contain parameters for your environment.
-   It is excluded from source control.
    Edit the file as follows.
    
    a. Enter your Kubernetes namespace that contains your Pravega stream (NAMESPACE).
       This is the name of your analytics project.
 
-   b. Enter a name that identifies your environment (HELM_ENVIRONMENT).
-      This will be used only to select the directory within values/environments.
-      Recommended values are "test", "staging", "production".
-
-   c. Enter your AWS S3 credentials (S3_ACCESS_KEY and S3_SECRET_KEY).
-   
    Example file `scripts/env-local.sh`:
    ```shell script
    export NAMESPACE=examples   
    export MAVEN_USERNAME=desdp   
-   export HELM_ENVIRONMENT=sample   
-   export S3_ACCESS_KEY=xxx
-   export S3_SECRET_KEY=xxx
    ```
 
-2. Copy the sample values file from `values/environments/sample/flink-on-aws-s3.yaml` to 
-   `values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml`.
-   Edit this file to use your AWS S3 bucket name (refer to instructions in the file).
-   
-3. Copy the sample job script `scripts/samples/sample1-stream-to-aws-s3-job.sh` to 
-   `scripts/jobs/my-stream-to-aws-s3-job.sh`.
+3. Copy the sample values file from `values/samples/sample1-stream-to-aws-s3-job.yaml` or
+   `values/samples/sample1-stream-to-hdfs-job.yaml` to
+   `values/local/my-stream-to-file-job.yaml` or any other destination.
    You may name this file anything, but you must use alphanumeric characters and dashes only.
-   
-   Example file `scripts/jobs/my-stream-to-aws-s3-job.sh` (some sections omitted for clarity):
-   ```shell script
-    helm upgrade --install \
-        ${RELEASE_NAME} \
-        --namespace ${NAMESPACE} \
-        ${ROOT_DIR}/charts/flink-tools \
-        -f ${ROOT_DIR}/charts/flink-tools/values.yaml \
-        -f ${ROOT_DIR}/values/job-defaults/stream-to-file-job.yaml \
-        -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/flink-on-aws-s3.yaml \
-        -f ${ROOT_DIR}/values/environments/${HELM_ENVIRONMENT}/${RELEASE_NAME}.yaml \
-        --set clusterConfiguration."s3\.access-key"=${S3_ACCESS_KEY} \
-        --set clusterConfiguration."s3\.secret-key"=${S3_SECRET_KEY}
-   ```
-   
-4. Copy the sample values file from `values/environments/sample/sample1-stream-to-aws-s3-job.yaml` to 
-   `values/environments/${HELM_ENVIRONMENT}/my-stream-to-aws-s3-job.yaml`.
-   The file name must match that of step 2.
-   Edit this file to use your Pravega stream name, and AWS S3 bucket and path.
-   You can also change the checkpoint interval, which is how often events
-   will be written to the S3 bucket.
-   
-   Example file `values/environments/sample/my-stream-to-aws-s3-job.yaml`:
-   ```yaml
-    appParameters:
-      checkpointIntervalMs: "60000"
-      input-stream: "my-stream"
-      output: "s3a://my-bucket/my-stream"
-   ```
 
+4. Edit this file to use your Pravega stream name and output directory.
+   You can also change the checkpoint interval, which is how often events
+   will be written to the files.
+   
 5. Launch the Flink job using Helm.
    ```shell script
-   scripts/samples/my-stream-to-aws-s3-job.sh
+   scripts/jobs/stream-to-file-job.sh values/local/my-stream-to-file-job.yaml
    ```
 
-6. To copy additional streams, repeat steps 3 to 5.
+6. To copy additional streams, repeat steps 2 to 4.
 
 7. To stop the job and delete all associated state:
    ```
-   helm del my-stream-to-aws-s3-job -n ${NAMESPACE}
+   helm del my-stream-to-file-job -n ${NAMESPACE}
    ```
+
+## Stream-to-Stream: Continuously copying a Pravega stream to another Pravega stream
+
+### Overview
+
+This Flink job will continuously copy a Pravega stream to another Pravega stream.
+It uses Flink checkpoints to provide exactly-once guarantees, ensuring that events
+are never missed nor duplicated.
+It automatically recovers from failures and resumes where it left off.
+It can use parallelism for high-volume streams with multiple segments.
+
+### Deploy to SDP using Helm
+
+Refer to the method described in the Stream-to-file section. 
 
 ## Sample data generator
 
+### Overview
+
+This Flink job continuously generates synthetic JSON events and writes them to a Pravega stream.
+It can be used for testing the other application.
+
+### Deploy to SDP using Helm
+
+Refer to the method described in the Stream-to-file section. 
+
 ### Deploy to SDP using the SDP UI
 
-1. Upload the artifact:
-   group: io.pravega
-   artifact: flink-tools
-   version: 0.1.0
+Below shows how to deploy this Flink job using the SDP UI.
+
+1. Build the JAR file.
+   ```shell script
+   ./gradlew clean shadowJar
+   ```
+
+2. Upload the artifact:
+   - group: io.pravega
+   - artifact: flink-tools
+   - version: 0.1.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.1.0.jar
    
-2. Create New App.
-   Main Class: io.pravega.flinktools.SampleDataGeneratorJob
-   Flink Version: 1.10.0
-   Add Parameters:
-        scope: examples (This should match your SDP project name.)
-   Add Stream:
-        output-stream: sample1 (Select the stream to write to.)
+3. Create New App.
+   - Main Class: io.pravega.flinktools.SampleDataGeneratorJob
+   - Flink Version: 1.10.0
+   - Add Parameters:
+     - scope: examples (This should match your SDP project name.)
+   - Add Stream:
+     - output-stream: sample1 (Select the stream to write to.)
         
-3. Create Flink Cluster.
-   Flink Image: 1.10.0-2.12 (1.10.0)
-   Replicas: 1
-   Task Slots: 1     
+4. Create Flink Cluster.
+   - Flink Image: 1.10.0-2.12 (1.10.0)
+   - Replicas: 1
+   - Task Slots: 1     
 
 ## References
 

@@ -11,5 +11,17 @@ appParameters:
   input-stream: "sample1"
   #input-startAtTail: "false"
   #input-startStreamCut: "UNBOUNDED"
-  output: "s3a://desa-lab-vibranium-stream-copy-test/sample1"
+  output: "s3a://my-bucket/sample1"
   #parallelism: "1"
+
+clusterConfiguration:
+  s3.endpoint: "s3.amazonaws.com"
+  s3.path.style.access: "false"
+  s3.access-key: "xxx"
+  s3.secret-key: "xxx"
+
+  # If you are using SDP with ECS S3 for long-term storage and you want to run a Flink job to access AWS S3,
+  # you must set the following values to configure Flink to store state on AWS S3 instead instead of ECS S3.
+  state.checkpoints.dir: "s3p://my-bucket/.flink/checkpoints"
+  state.savepoints.dir: "s3p://my-bucket/.flink/savepoints"
+  high-availability.storageDir: "s3p://my-bucket/.flink/ha"
