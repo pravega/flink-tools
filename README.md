@@ -128,7 +128,13 @@ Refer to the method described in the Stream-to-file section.
 ### Overview
 
 This Flink job continuously generates synthetic JSON events and writes them to a Pravega stream.
-It can be used for testing the other application.
+It can be used for testing the other applications.
+The event size and event rate can be specified as parameters.
+
+Events are in the format shown below. 
+```json
+{"sensorId":0,"eventNumber":42,"timestamp":1591294714504,"timestampStr":"2020-06-04 18:18:34.504","data":"xxxxx..."}
+```
 
 ### Deploy to SDP using Helm
 
