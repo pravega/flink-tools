@@ -54,6 +54,7 @@ dependencies {
     flinkShadowJar "io.pravega:pravega-connectors-flink-${flinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
     flinkShadowJar "com.github.vladimir-bukhtoyarov:bucket4j-core:${bucket4jVersion}"
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"
+    flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
