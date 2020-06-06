@@ -10,31 +10,16 @@
  */
 package io.pravega.flinktools;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
-import io.pravega.flinktools.util.AscendingCounterProcessFunction;
-import io.pravega.flinktools.util.ComparableRow;
-import io.pravega.flinktools.util.ExtractKeyAndCounterFromJson;
-import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.RichFilterFunction;
+import io.pravega.flinktools.util.Filters;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
-import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,17 +69,7 @@ public class StreamToFileJob extends AbstractJob {
                     .addSource(flinkPravegaReader)
                     .uid("pravega-reader")
                     .name("pravega-reader");
-
-            final ObjectMapper objectMapper = new ObjectMapper();
-            final DataStream<Tuple3<String,ComparableRow,Long>> withDups = lines
-                    .flatMap(new ExtractKeyAndCounterFromJson(new String[]{"sensorId","sensorId"}, "timestamp", objectMapper));
-            final DataStream<String> withoutDups = withDups
-                    .keyBy(1)
-                    .process(new AscendingCounterProcessFunction())
-                    .map(t -> t.f0);
-            final DataStream<String> toOutput = withoutDups;
-            toOutput.printToErr();
-
+            final DataStream<String> toOutput = Filters.dynamicFilter(lines, getConfig().getParams());
             final StreamingFileSink<String> sink = StreamingFileSink
                     .forRowFormat(new Path(outputFilePath), new SimpleStringEncoder<String>())
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
