@@ -14,16 +14,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
+import io.pravega.flinktools.util.ComparableRow;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -80,16 +82,63 @@ public class StreamToFileJob extends AbstractJob {
                     .name("pravega-reader");
 
             final ObjectMapper objectMapper = new ObjectMapper();
-            final DataStream<Tuple3<String,String,Long>> withDups = lines.flatMap(new FlatMapFunction<String, Tuple3<String,String,Long>>() {
-                @Override
-                public void flatMap(String s, Collector<Tuple3<String,String,Long>> collector) throws Exception {
-                    final JsonNode node = objectMapper.readTree(s);
-                    collector.collect(Tuple3.of(s, node.get("sensorId").asText(), node.get("timestamp").asLong()));
-                }
-            });
+
+//            lines.flatMap((FlatMapFunction<String, Tuple3<String, Tuple, Long>>) (s, collector) -> {
+//                final JsonNode node = objectMapper.readTree(s);
+//                final Tuple t = Tuple.newInstance(1);
+//                t.setField(node.get("sensorId").asText(), 0);
+//                collector.collect(Tuple3.of(s, t, node.get("timestamp").asLong()));
+//            })
+//            .returns(new TypeHint<Tuple3<String, Tuple, Long>>(){})
+//            .keyBy(1).process(new KeyedProcessFunction<Tuple, Tuple3<String, Tuple, Long>, String>() {
+//                @Override
+//                public void processElement(Tuple3<String, Tuple, Long> value, Context ctx, Collector<String> out) throws Exception {
+//
+//                }
+//            }).printToErr();
+
+//            lines.flatMap(new FlatMapFunction<String, Tuple3<String,Row,Long>>() {
+//                @Override
+//                public void flatMap(String s, Collector<Tuple3<String,Row,Long>> collector) throws Exception {
+//                    final JsonNode node = objectMapper.readTree(s);
+//                    final Row row = new Row(1);
+//                    row.setField(0, node.get("sensorId").asText());
+//                    collector.collect(Tuple3.of(s, row, node.get("timestamp").asLong()));
+//                }
+//            }).keyBy(1).process(new KeyedProcessFunction<Tuple, Tuple3<String, Row, Long>, String>() {
+//                @Override
+//                public void processElement(Tuple3<String, Row, Long> value, Context ctx, Collector<String> out) throws Exception {
+//
+//                }
+//            }).printToErr();
+
+            final DataStream<Tuple3<String,ComparableRow,Long>> withDups = lines
+                    .flatMap((FlatMapFunction<String, Tuple3<String,ComparableRow, Long>>) (s, collector) -> {
+                final JsonNode node = objectMapper.readTree(s);
+                final ComparableRow row = new ComparableRow(2);
+                row.setField(0, node.get("sensorId").asText());
+                row.setField(1, node.get("sensorId").asText());
+                collector.collect(Tuple3.of(s, row, node.get("timestamp").asLong()));
+            })
+            .returns(new TypeHint<Tuple3<String, ComparableRow, Long>>() {});
+
+//            .keyBy(1).process(new KeyedProcessFunction<Tuple, Tuple3<String, ComparableRow, Long>, String>() {
+//                @Override
+//                public void processElement(Tuple3<String, ComparableRow, Long> value, Context ctx, Collector<String> out) throws Exception {
+//                    out.collect(value.f0);
+//                }
+//            }).printToErr();
+
+//            final DataStream<Tuple3<String,String,Long>> withDups = lines.flatMap(new FlatMapFunction<String, Tuple3<String,String,Long>>() {
+//                @Override
+//                public void flatMap(String s, Collector<Tuple3<String,String,Long>> collector) throws Exception {
+//                    final JsonNode node = objectMapper.readTree(s);
+//                    collector.collect(Tuple3.of(s, node.get("sensorId").asText(), node.get("timestamp").asLong()));
+//                }
+//            });
             final DataStream<String> withoutDups = withDups
-                    .keyBy(t -> t.f1)
-                    .process(new KeyedProcessFunction<String, Tuple3<String, String, Long>, Tuple3<String, String, Long>>() {
+                    .keyBy(1)
+                    .process(new KeyedProcessFunction<Tuple, Tuple3<String, ComparableRow, Long>, Tuple3<String, ComparableRow, Long>>() {
                         private ValueState<Long> maxCounterState;
 
                         @Override
@@ -98,7 +147,7 @@ public class StreamToFileJob extends AbstractJob {
                         }
 
                         @Override
-                        public void processElement(Tuple3<String, String, Long> value, Context ctx, Collector<Tuple3<String, String, Long>> out) throws Exception {
+                        public void processElement(Tuple3<String, ComparableRow, Long> value, Context ctx, Collector<Tuple3<String, ComparableRow, Long>> out) throws Exception {
                             final long counter = value.f2;
                             final Long maxCounter = maxCounterState.value();
                             if (maxCounter == null || maxCounter < counter) {
