@@ -7,6 +7,8 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
+ROOT_DIR=$(dirname $0)/..
+source ${ROOT_DIR}/scripts/env-local.sh
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm upgrade --install --timeout 600s --wait --debug \
     hadoop \
