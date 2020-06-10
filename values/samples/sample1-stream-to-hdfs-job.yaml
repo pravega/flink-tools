@@ -8,6 +8,7 @@
 appParameters:
   # Files will be created and written with this interval.
   checkpointIntervalMs: "10000"
+  checkpointTimeoutMs: "3600000"  # 1 hr
   input-stream: "sample1"
   #input-startAtTail: "false"
   #input-startStreamCut: "UNBOUNDED"

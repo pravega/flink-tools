@@ -109,7 +109,7 @@ public abstract class AbstractJob implements Runnable {
         if (getConfig().isEnableCheckpoint()) {
             env.enableCheckpointing(getConfig().getCheckpointIntervalMs(), CheckpointingMode.EXACTLY_ONCE);
             env.getCheckpointConfig().setMinPauseBetweenCheckpoints(getConfig().getCheckpointIntervalMs() / 2);
-            env.getCheckpointConfig().setCheckpointTimeout(getConfig().getCheckpointIntervalMs() * 2);
+            env.getCheckpointConfig().setCheckpointTimeout(getConfig().getCheckpointTimeoutMs());
             env.getCheckpointConfig().setTolerableCheckpointFailureNumber(0);
         }
 

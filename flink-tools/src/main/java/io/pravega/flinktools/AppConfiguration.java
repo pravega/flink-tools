@@ -39,6 +39,7 @@ public class AppConfiguration {
     private final int parallelism;
     private final int readerParallelism;
     private final long checkpointIntervalMs;
+    private final long checkpointTimeoutMs;
     private final boolean enableCheckpoint;
     private final boolean enableOperatorChaining;
     private final boolean enableRebalance;
@@ -51,6 +52,7 @@ public class AppConfiguration {
         parallelism = getParams().getInt("parallelism", PARALLELISM_UNKNOWN);
         readerParallelism = getParams().getInt("readerParallelism", PARALLELISM_DEFAULT);
         checkpointIntervalMs = getParams().getLong("checkpointIntervalMs", 10000);
+        checkpointTimeoutMs = getParams().getLong("checkpointTimeoutMs", 20000);
         enableCheckpoint = getParams().getBoolean("enableCheckpoint", true);
         enableOperatorChaining = getParams().getBoolean("enableOperatorChaining", true);
         enableRebalance = getParams().getBoolean("rebalance", true);
@@ -64,6 +66,7 @@ public class AppConfiguration {
                 "parallelism=" + parallelism +
                 ", readerParallelism=" + readerParallelism +
                 ", checkpointIntervalMs=" + checkpointIntervalMs +
+                ", checkpointTimeoutMs=" + checkpointTimeoutMs +
                 ", enableCheckpoint=" + enableCheckpoint +
                 ", enableOperatorChaining=" + enableOperatorChaining +
                 ", enableRebalance=" + enableRebalance +
@@ -86,6 +89,10 @@ public class AppConfiguration {
 
     public int getReaderParallelism() {
         return readerParallelism;
+    }
+
+    public long getCheckpointTimeoutMs() {
+        return checkpointTimeoutMs;
     }
 
     public long getCheckpointIntervalMs() {
