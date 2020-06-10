@@ -5,7 +5,8 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-appParameters: {}
+appParameters:
+  enableOperatorChaining: "false"
 
 # For Flink 1.9, SDP 1.0
 #flinkVersion: "1.9.0"
