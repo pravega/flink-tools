@@ -35,11 +35,12 @@ public class AscendingCounterProcessFunction
     public void processElement(Tuple3<String, ComparableRow, Long> value, Context ctx, Collector<Tuple3<String, ComparableRow, Long>> out) throws Exception {
         final long counter = value.f2;
         final Long maxCounter = maxCounterState.value();
+        log.debug("processElement: key={}, counter={}, maxCounter={}", ctx.getCurrentKey(), counter, maxCounter);
         if (maxCounter == null || maxCounter < counter) {
             maxCounterState.update(counter);
             out.collect(value);
         } else {
-            log.info("Dropping event with decreasing counter {} and key {}", counter, ctx.getCurrentKey());
+            log.info("Dropping event with key {} and decreasing counter {}", ctx.getCurrentKey(), counter);
         }
     }
 }

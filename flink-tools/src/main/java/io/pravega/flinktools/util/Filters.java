@@ -40,14 +40,14 @@ public class Filters {
     }
 
     public static DataStream<String> dynamicFilter(DataStream<String> lines, String[] keyFieldNames, String counterFieldName) {
-        if (counterFieldName.isEmpty()) {
+        if (keyFieldNames.length == 0 || counterFieldName.isEmpty()) {
             return lines;
         }
         return ascendingCounterFilter(lines, keyFieldNames, counterFieldName);
     }
 
     public static DataStream<byte[]> dynamicByteArrayFilter(DataStream<byte[]> events, String[] keyFieldNames, String counterFieldName) {
-        if (counterFieldName.isEmpty()) {
+        if (keyFieldNames.length == 0 || counterFieldName.isEmpty()) {
             return events;
         }
         final SingleOutputStreamOperator<String> lines = events.map(b -> new String(b, StandardCharsets.UTF_8));
@@ -59,7 +59,7 @@ public class Filters {
         log.info("Filtering events using key {} and ascending counter [{}]", keyFieldNames, counterFieldName);
         final ObjectMapper objectMapper = new ObjectMapper();
         final DataStream<Tuple3<String,ComparableRow,Long>> withDups = lines
-                .flatMap(new ExtractKeyAndCounterFromJson(keyFieldNames, counterFieldName, objectMapper));
+                .flatMap(new ExtractKeyAndCounterFromJson(keyFieldNames, counterFieldName, objectMapper, true));
         return withDups
                 .keyBy(1)
                 .process(new AscendingCounterProcessFunction())
