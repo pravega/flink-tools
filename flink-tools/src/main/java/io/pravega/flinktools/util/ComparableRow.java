@@ -12,6 +12,10 @@ package io.pravega.flinktools.util;
 
 import org.apache.flink.types.Row;
 
+/**
+ * A Flink Row that can be used with keyBy.
+ * Elements of the Row can be (almost) any data type including JsonNode of string, long, and object.
+ */
 public class ComparableRow extends Row implements Comparable<ComparableRow> {
     public ComparableRow(int arity) {
         super(arity);

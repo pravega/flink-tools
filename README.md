@@ -168,6 +168,42 @@ Below shows how to deploy this Flink job using the SDP UI.
    - Replicas: 1
    - Task Slots: 1     
 
+## Deduplication of events
+
+Although Pravega provides exactly-once semantics, some event sources may not fully utilize
+these features and these may produce duplicate events in some failure cases.
+The jobs in Pravega Flink Tools can use the stateful functionality of Flink to
+remove duplicates when writing to the output stream or file.
+
+This functionality requires the following:
+
+- The events must be JSON objects such as
+  `{"key1": 1, "counter": 10, "value1": 100}`.
+  
+- The events must have one or more key columns, such as "key1" in the above example.
+  Each key may be any JSON data type, including strings, numbers, arrays, and objects. 
+
+- The event must have a counter column, such as "counter" in the above example.
+  It must be a numeric data type. A 64-bit long integer is recommended.
+  
+- For each unique key, the counter *must* be ascending.
+  If the counter decreases or repeats, the event is considered a duplicate and it is logged and dropped.
+  
+Beware of using a timestamp for the counter. 
+A clock going backwards due to an NTP correction may result in large amounts of data being dropped.
+Events produced faster than the clock resolution may also be dropped.
+
+## Enabling deduplication
+
+1. Set the parameter `keyFieldNames` to a list of JSON field names for the keys, separated by commas.
+
+2. Set the parameter `counterFieldName` to the JSON field name for the counter.
+
+If either of these parameters is empty, deduplication will be disabled, which is the default behavior.
+
+When deduplication is enabled, any errors when parsing the JSON or accessing the keys or counter
+will be logged and the event will be discarded.
+
 ## References
 
 - [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)

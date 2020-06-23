@@ -55,14 +55,29 @@ public class Filters {
                 .map(line -> line.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Deduplicate based on an ascending counter per key.
+     * An event with a non-ascending counter will be logged and dropped.
+     *
+     * @param lines The input datastream.
+     * @param keyFieldNames A list of JSON field names used for the key. Fields can be any type.
+     * @param counterFieldName The JSON field name for the counter. Must be numeric.
+     * @return The deduped and sorted datastream.
+     */
     public static DataStream<String> ascendingCounterFilter(DataStream<String> lines, String[] keyFieldNames, String counterFieldName) {
         log.info("Filtering events using key {} and ascending counter [{}]", keyFieldNames, counterFieldName);
         final ObjectMapper objectMapper = new ObjectMapper();
         final DataStream<Tuple3<String,ComparableRow,Long>> withDups = lines
-                .flatMap(new ExtractKeyAndCounterFromJson(keyFieldNames, counterFieldName, objectMapper, true));
+                .flatMap(new ExtractKeyAndCounterFromJson(keyFieldNames, counterFieldName, objectMapper, true))
+                .uid("ExtractKeyAndCounterFromJson")
+                .name("ExtractKeyAndCounterFromJson");
         return withDups
                 .keyBy(1)
                 .process(new AscendingCounterProcessFunction())
-                .map(t -> t.f0);
+                .uid("AscendingCounterProcessFunction")
+                .name("AscendingCounterProcessFunction")
+                .map(t -> t.f0)
+                .uid("ascendingCounterFilter-f0")
+                .name("ascendingCounterFilter-f0");
     }
 }

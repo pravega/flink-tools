@@ -19,6 +19,11 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This will extract the key and counter fields from a JSON string.
+ * Input is a String.
+ * Output is the tuple (String input, ComparableRow key, Long counter).
+ */
 public class ExtractKeyAndCounterFromJson implements FlatMapFunction<String, Tuple3<String, ComparableRow, Long>> {
     final private static Logger log = LoggerFactory.getLogger(ExtractKeyAndCounterFromJson.class);
 

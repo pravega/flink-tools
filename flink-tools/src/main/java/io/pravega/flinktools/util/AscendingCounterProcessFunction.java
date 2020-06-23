@@ -20,6 +20,10 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A stateful function that deduplicates based on an ascending counter per key.
+ * An event with a non-ascending counter will be logged and dropped.
+ */
 public class AscendingCounterProcessFunction
         extends KeyedProcessFunction<Tuple, Tuple3<String, ComparableRow, Long>, Tuple3<String, ComparableRow, Long>> {
     final private static Logger log = LoggerFactory.getLogger(AscendingCounterProcessFunction.class);

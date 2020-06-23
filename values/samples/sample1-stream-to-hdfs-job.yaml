@@ -13,6 +13,10 @@ appParameters:
   #input-startStreamCut: "UNBOUNDED"
   output: "hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1"
   #parallelism: "1"
+  # Key for deduplication
+  keyFieldNames: "sensorId"
+  # Ascending counter for deduplication
+  counterFieldName: "eventNumber"
 imageRef:
   name: "1.10.0-2.12-hadoop2.8.3"
 clusterConfiguration:
