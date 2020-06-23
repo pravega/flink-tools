@@ -63,7 +63,7 @@ public class EventNumberIterator implements Iterator<Tuple2<Long,Long>>, Seriali
     public Tuple2<Long,Long> next() {
         // Wait for the token bucket to fill up. This limits the maximum rate.
         tokenBucket.asScheduler().consumeUninterruptibly(1);
-        long timeMs = System.currentTimeMillis() + (long) (4000.0 * Math.random());
+        long timeMs = System.currentTimeMillis();
         Tuple2<Long,Long> result = new Tuple2<Long,Long>(eventNumber, timeMs);
         eventNumber++;
         return result;
