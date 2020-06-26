@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 public class SampleEvent {
     // Unique ID for this sensor.
     final public int sensorId;
-    // Sequential event number. This can be used to identify any missing events.
+    // Sequential event number. This can be used to identify any missing events or deduplicate.
     final public long eventNumber;
     // Event time of this sensor reading. We use Timestamp to have nanosecond precision.
     final public Timestamp timestamp;

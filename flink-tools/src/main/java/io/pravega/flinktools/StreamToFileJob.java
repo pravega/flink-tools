@@ -12,6 +12,7 @@ package io.pravega.flinktools;
 
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
+import io.pravega.flinktools.util.Filters;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
@@ -68,12 +69,12 @@ public class StreamToFileJob extends AbstractJob {
                     .addSource(flinkPravegaReader)
                     .uid("pravega-reader")
                     .name("pravega-reader");
-
+            final DataStream<String> toOutput = Filters.dynamicFilter(lines, getConfig().getParams());
             final StreamingFileSink<String> sink = StreamingFileSink
                     .forRowFormat(new Path(outputFilePath), new SimpleStringEncoder<String>())
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
-            lines.addSink(sink)
+            toOutput.addSink(sink)
                 .uid("file-sink")
                 .name("file-sink");
 

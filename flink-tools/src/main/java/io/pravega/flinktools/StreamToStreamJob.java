@@ -16,6 +16,7 @@ import io.pravega.connectors.flink.FlinkPravegaWriter;
 import io.pravega.connectors.flink.PravegaWriterMode;
 import io.pravega.flinktools.util.ByteArrayDeserializationFormat;
 import io.pravega.flinktools.util.ByteArraySerializationFormat;
+import io.pravega.flinktools.util.Filters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -70,6 +71,8 @@ public class StreamToStreamJob extends AbstractJob {
                     .uid("pravega-reader")
                     .name("Pravega reader from " + inputStreamConfig.getStream().getScopedName());
 
+            final DataStream<byte[]> toOutput = Filters.dynamicByteArrayFilter(events, getConfig().getParams());
+
             final FlinkPravegaWriter<byte[]> sink = FlinkPravegaWriter.<byte[]>builder()
                     .withPravegaConfig(outputStreamConfig.getPravegaConfig())
                     .forStream(outputStreamConfig.getStream())
@@ -77,7 +80,7 @@ public class StreamToStreamJob extends AbstractJob {
                     .withEventRouter(event -> fixedRoutingKey)
                     .withWriterMode(PravegaWriterMode.EXACTLY_ONCE)
                     .build();
-            events
+            toOutput
                     .addSink(sink)
                     .uid("pravega-writer")
                     .name("Pravega writer to " + outputStreamConfig.getStream().getScopedName());

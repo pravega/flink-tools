@@ -7,7 +7,6 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
-
 package io.pravega.flinktools.util;
 
 import io.pravega.client.stream.impl.Credentials;
