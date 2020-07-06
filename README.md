@@ -67,7 +67,51 @@ For binary events, you will need to customize the Flink job with the appropriate
 Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
-
+## Configuring a seerate NFS mount to write files to NFS
+1. Add a PVC. ( Added in FlinkCluster.yaml)
+```
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: flink-tools-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfs
+```
+2. Configure volumes spec in FlinkCluster.yaml
+```
+volumes:
+    - name: extra-volume
+      persistentVolumeClaim:
+        claimName: flink-tools-nfs
+```
+3. Configure extra NFS moount in values.yaml
+```
+jobManager:
+  cpu: "250m"
+  memory: "1024M"
+  replicas: 1
+  volumeMounts:
+    - mountPath: /mnt/sample1
+      name: extra-volume
+taskManager:
+  replicas: 1
+  heap: "3221225472"      # 3Gi
+  memory: "4294967296"    # 4Gi
+  cpu: "250m"
+  numberOfTaskSlots: 1
+  volumeMounts:
+    - mountPath: /mnt/sample1
+      name: extra-volume
+```
+4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
+```
+output: "/mnt/sample1"
+``` 
 ### Deploy to SDP using Helm
 
 1. If you will be using HDFS, you must install the Flink cluster image that includes the Hadoop client library.

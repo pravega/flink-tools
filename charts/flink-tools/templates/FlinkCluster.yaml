@@ -5,6 +5,18 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: flink-tools-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfs
+---
 apiVersion: flink.nautilus.dellemc.com/v1beta1
 kind: FlinkCluster
 metadata:
@@ -22,6 +34,10 @@ spec:
         requests:
           storage: {{ .Values.localStorage.size | quote }}
       storageClassName: standard
+  volumes:
+    - name: extra-volume
+      persistentVolumeClaim:
+        claimName: flink-tools-nfs
   storage:
     volumeSource:
       persistentVolumeClaim:
