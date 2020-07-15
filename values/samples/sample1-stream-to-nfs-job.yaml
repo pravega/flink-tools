@@ -9,10 +9,10 @@ appParameters:
   # Files will be created and written with this interval.
   checkpointIntervalMs: "10000"
   checkpointTimeoutMs: "3600000"  # 1 hr
-  input-stream: "edge-sample"
+  input-stream: "sample1"
   #input-startAtTail: "false"
   #input-startStreamCut: "UNBOUNDED"
-  output: "/mnt/edge-sample"
+  output: "/mnt/examples-sample"
   #parallelism: "1"
 imageRef:
   name: "1.10.0-2.12-hadoop2.8.3"
