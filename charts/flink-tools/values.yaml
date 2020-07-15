@@ -32,7 +32,7 @@ jobManager:
   memory: "1024M"
   replicas: 1
   volumeMounts:
-    - mountPath: /mnt/edge-sample
+    - mountPath: /mnt/examples-sample
       name: extra-volume
 taskManager:
   replicas: 1
@@ -41,7 +41,7 @@ taskManager:
   cpu: "250m"
   numberOfTaskSlots: 1
   volumeMounts:
-    - mountPath: /mnt/edge-sample
+    - mountPath: /mnt/examples-sample
       name: extra-volume
 clusterConfiguration:
   taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
