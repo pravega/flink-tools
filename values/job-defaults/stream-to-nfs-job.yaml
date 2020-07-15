@@ -10,3 +10,12 @@ appParameters:
   # Files will be created with this interval.
   checkpointIntervalMs: "60000"
 mainClass: io.pravega.flinktools.StreamToFileJob
+jobManager:
+  volumeMounts:
+    - mountPath: /mnt/examples-sample
+      name: extra-volume
+taskManager:
+  volumeMounts:
+    - mountPath: /mnt/examples-sample
+      name: extra-volume
+
