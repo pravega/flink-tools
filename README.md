@@ -71,6 +71,7 @@ for details.
 ## Configuring a seperate NFS mount to write files to NFS
 1. Add a PVC. ( Refer in FlinkCluster.yaml)
 ```
+{{- if .Values.enableExtraVolume }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -82,6 +83,7 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: nfs
+{{- end }}
 ```
 2. Configure volumes spec in FlinkCluster.yaml
 ```
@@ -93,7 +95,8 @@ spec:
   {{- end }}
 ```
 3. Configure extra NFS moount in values/job-defaults/stream-to-nfs-job.yaml
-Control the enabling and disabling of extra volume.
+
+Control the enabling and disabling of extra volume. Ex: enableExtraVolume: true
 ```
 enableExtraVolume: true
 jobManager:
