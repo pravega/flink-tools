@@ -28,18 +28,20 @@ mavenCoordinate:
   version: "0.1.0"
 parallelism: 1
 jobManager:
-  cpu: "250m"
-  memory: "1024M"
+  cpu: "1000m"
+  memory: "2048M"
   replicas: 1
 taskManager:
   replicas: 1
   heap: "3221225472"      # 3Gi
   memory: "4294967296"    # 4Gi
-  cpu: "250m"
+  cpu: "1000m"
   numberOfTaskSlots: 1
 clusterConfiguration:
+  restart-strategy.fixed-delay.delay: "30 s"
   taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
   taskmanager.memory.task.off-heap.size: "0"
 logging: {}
   #io.pravega: DEBUG
   #io.pravega.connectors: DEBUG
+  #org.apache.flink: DEBUG
