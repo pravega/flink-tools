@@ -14,6 +14,7 @@ Pravega Flink Tools is a collection of Apache Flink applications for working wit
 It provides the following Flink jobs:
 
 - **stream-to-file**: Continuously copy a Pravega stream to files on S3, HDFS, or any other Flink-supported file system
+- **stream-to-nfs**: Continuously copy a Pravega stream to files on external NFS mount
 - **stream-to-stream**: Continuously copy a Pravega stream to another Pravega stream, even on a different Pravega cluster
 - **stream-to-console**: Continuously show the contents of a Pravega stream in a human-readable log file
 - **sample-data-generator**: Continuously write synthetic data to Pravega for testing
@@ -67,9 +68,10 @@ For binary events, you will need to customize the Flink job with the appropriate
 Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
-## Configuring a seerate NFS mount to write files to NFS
-1. Add a PVC. ( Added in FlinkCluster.yaml)
+## Configuring a seperate NFS mount to write files to NFS
+1. Add a PVC. ( Refer in FlinkCluster.yaml)
 ```
+{{- if .Values.enableExtraVolume }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -81,36 +83,34 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: nfs
+{{- end }}
 ```
 2. Configure volumes spec in FlinkCluster.yaml
 ```
-volumes:
+  {{- if .Values.enableExtraVolume }}
+  volumes:
     - name: extra-volume
       persistentVolumeClaim:
         claimName: flink-tools-nfs
+  {{- end }}
 ```
-3. Configure extra NFS moount in values.yaml
+3. Configure extra NFS moount in values/job-defaults/stream-to-nfs-job.yaml
+
+Control the enabling and disabling of extra volume. Ex: enableExtraVolume: true
 ```
+enableExtraVolume: true
 jobManager:
-  cpu: "250m"
-  memory: "1024M"
-  replicas: 1
   volumeMounts:
-    - mountPath: /mnt/sample1
+    - mountPath: /mnt/examples-sample
       name: extra-volume
 taskManager:
-  replicas: 1
-  heap: "3221225472"      # 3Gi
-  memory: "4294967296"    # 4Gi
-  cpu: "250m"
-  numberOfTaskSlots: 1
   volumeMounts:
-    - mountPath: /mnt/sample1
+    - mountPath: /mnt/examples-sample
       name: extra-volume
 ```
 4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
 ```
-output: "/mnt/sample1"
+  output: "/mnt/examples-sample"
 ``` 
 ### Deploy to SDP using Helm
 
