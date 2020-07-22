@@ -14,7 +14,6 @@ Pravega Flink Tools is a collection of Apache Flink applications for working wit
 It provides the following Flink jobs:
 
 - **stream-to-file**: Continuously copy a Pravega stream to files on S3, HDFS, or any other Flink-supported file system
-- **stream-to-nfs**: Continuously copy a Pravega stream to files on external NFS mount
 - **stream-to-stream**: Continuously copy a Pravega stream to another Pravega stream, even on a different Pravega cluster
 - **stream-to-console**: Continuously show the contents of a Pravega stream in a human-readable log file
 - **sample-data-generator**: Continuously write synthetic data to Pravega for testing
@@ -68,22 +67,23 @@ For binary events, you will need to customize the Flink job with the appropriate
 Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
-## Configuring a seperate NFS mount to write files to NFS
-1. Add a PVC. ( Refer in FlinkCluster.yaml)
+## Configuring a external NFS mount to write files to external NFS mount.
+1. Configure and run a PV and PVC.
 ```
-{{- if .Values.enableExtraVolume }}
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: flink-tools-nfs
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: nfs
-{{- end }}
+# Edit charts/external-nfs/template/external-nfs-pv.yaml
+namespace: <NAMESPACE>
+    name: flink-tools-nfs-pvc
+  nfs:
+    path: <MOUNT_PATH>
+    server: <NFS_SERVER>
+
+# Execute these from ~/flink-tools
+k create -f charts/external-nfs/template/external-nfs-pv.yaml
+
+k create -f charts/external-nfs/template/external-nfs-pvc.yaml -n <NAMESPACE>
+
+# deploy flink job for JFS
+UNINSTALL=1 scripts/jobs/stream-to-nfs-job.sh values/samples/sample1-stream-to-nfs-job.yaml
 ```
 2. Configure volumes spec in FlinkCluster.yaml
 ```
@@ -91,17 +91,17 @@ spec:
   volumes:
     - name: extra-volume
       persistentVolumeClaim:
-        claimName: flink-tools-nfs
+        claimName: flink-tools-nfs-pvc
   {{- end }}
 ```
-3. Configure extra NFS moount in values/job-defaults/stream-to-nfs-job.yaml
+3. Configure extra NFS moount in values/samples/sample1-stream-to-nfs-job.yaml
 
 Control the enabling and disabling of extra volume. Ex: enableExtraVolume: true
 ```
 enableExtraVolume: true
 jobManager:
   volumeMounts:
-    - mountPath: /mnt/examples-sample
+    - mountPath: /mnt/nfs
       name: extra-volume
 taskManager:
   volumeMounts:
@@ -110,7 +110,7 @@ taskManager:
 ```
 4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
 ```
-  output: "/mnt/examples-sample"
+  output: "/mnt/nfs"
 ``` 
 ### Deploy to SDP using Helm
 
