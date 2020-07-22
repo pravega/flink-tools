@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: flink-tools-nfs-pv
+spec:
+  storageClassName: nfs
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: examples
+    name: flink-tools-nfs-pvc
+  nfs:
+    path: /mnt/nfs
+    server: 10.247.14.115
+
