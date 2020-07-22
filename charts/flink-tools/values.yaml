@@ -42,7 +42,8 @@ taskManager:
   numberOfTaskSlots: 1
 
 clusterConfiguration:
-  taskmanager.memory.jvm-metaspace.size: "512m"  # 256 Mi
+  restart-strategy.fixed-delay.delay: "30 s"
+  taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
   taskmanager.memory.task.off-heap.size: "0"
 logging: {}
   #io.pravega: DEBUG
