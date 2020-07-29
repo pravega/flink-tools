@@ -27,7 +27,11 @@ To learn more about Pravega, visit http://pravega.io
 
 ## Prerequisites
 
-- Java 8.x
+- Java JDK 8.x.
+  On Ubuntu, this can be installed with:
+  ```
+  sudo apt-get install openjdk-8-jdk
+  ```
 
 - A [Pravega](http://pravega.io) installation
 
