@@ -75,17 +75,17 @@ for details.
    scripts/flink-image-install.sh
    ```
 
-2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
+2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`
+   or any other destination.
    This script will contain parameters for your environment.
    Edit the file as follows.
    
    a. Enter your Kubernetes namespace that contains your Pravega stream (NAMESPACE).
       This is the name of your analytics project.
-
+      
    Example file `scripts/env-local.sh`:
    ```shell script
    export NAMESPACE=examples   
-   export MAVEN_USERNAME=desdp   
    ```
 
 3. Copy the sample values file from `values/samples/sample1-stream-to-aws-s3-job.yaml` or
@@ -99,10 +99,11 @@ for details.
    
 5. Launch the Flink job using Helm.
    ```shell script
+   source scripts/env-local.sh
    scripts/jobs/stream-to-file-job.sh values/local/my-stream-to-file-job.yaml
    ```
 
-6. To copy additional streams, repeat steps 2 to 4.
+6. To copy additional streams, repeat steps 3 to 5.
 
 7. To stop the job and delete all associated state:
    ```

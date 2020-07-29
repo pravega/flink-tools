@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,12 +5,9 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-set -ex
-ROOT_DIR=$(dirname $0)/..
-source ${ROOT_DIR}/scripts/env.sh
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm upgrade --install --timeout 600s --wait --debug \
-    hadoop \
-    --namespace ${NAMESPACE} \
-    stable/hadoop \
-    $@
+
+# Load environment variables from env-local.sh if it exists.
+export ENV_LOCAL_SCRIPT=$(dirname $0)/env-local.sh
+if [[ -f ${ENV_LOCAL_SCRIPT} ]]; then
+    source ${ENV_LOCAL_SCRIPT}
+fi

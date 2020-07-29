@@ -8,12 +8,10 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
 ROOT_DIR=$(dirname $0)/..
-source ${ROOT_DIR}/scripts/env-local.sh
+source ${ROOT_DIR}/scripts/env.sh
+: ${NAMESPACE?"You must export NAMESPACE"}
+export MAVEN_URL="${MAVEN_URL:-http://$(kubectl get ing -n ${NAMESPACE} repo -o jsonpath='{.spec.rules[0].host}')/maven2}"
+export MAVEN_USERNAME=${MAVEN_USERNAME:-desdp}
 export MAVEN_PASSWORD=$(kubectl get secret keycloak-${MAVEN_USERNAME} -n nautilus-system -o jsonpath='{.data.password}' | base64 -d)
-export MAVEN_URL=http://localhost:9092/maven2
-echo Starting kubectl port forward
-kubectl port-forward --namespace ${NAMESPACE} service/repo 9092:80 &
-sleep 2s
 cd ${ROOT_DIR}
 ./gradlew publish -PincludeHadoopS3=false
-kill %kubectl

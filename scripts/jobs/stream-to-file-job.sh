@@ -11,7 +11,8 @@ set -ex
 : ${1?"You must specify the values.yaml file."}
 
 export ROOT_DIR=$(dirname $0)/../..
-source ${ROOT_DIR}/scripts/env-local.sh
+source ${ROOT_DIR}/scripts/env.sh
+: ${NAMESPACE?"You must export NAMESPACE"}
 VALUES_FILE="$1"
 shift
 export RELEASE_NAME=$(basename "${VALUES_FILE}" .yaml)

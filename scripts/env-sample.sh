@@ -9,4 +9,3 @@
 # Copy this sample file to env-local.sh and customize it as needed.
 
 export NAMESPACE=examples
-export MAVEN_USERNAME=desdp

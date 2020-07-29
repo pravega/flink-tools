@@ -15,4 +15,3 @@ values/local/
 __pycache__
 .~lock*
 *-local.sh
-*.jar

@@ -8,6 +8,9 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
 
+: ${NAMESPACE?"You must export NAMESPACE"}
+: ${RELEASE_NAME?"You must export RELEASE_NAME"}
+
 if [[ "${UNINSTALL}" == "1" ]]; then
     helm del -n ${NAMESPACE} ${RELEASE_NAME} $@ || true
 fi
