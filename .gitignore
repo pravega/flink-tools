@@ -1,5 +1,6 @@
 *.iml
 .attach_pid*
+.git
 .gradle/
 .idea/
 *.json
