@@ -22,12 +22,8 @@ spec:
         requests:
           storage: {{ .Values.localStorage.size | quote }}
       storageClassName: standard
-{{- if .Values.enableExtraVolume }}
   volumes:
-    - name: extra-volume
-      persistentVolumeClaim:
-        claimName: flink-tools-nfs-pvc
-{{- end }}
+  {{ toYaml .Values.volumes | indent 4 }}
   storage:
     volumeSource:
       persistentVolumeClaim:

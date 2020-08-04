@@ -70,7 +70,7 @@ for details.
 ## Configuring a external NFS mount to write files to external NFS mount.
 1. Configure and run a PV and PVC.
 ```
-# Edit charts/external-nfs/template/external-nfs-pv.yaml
+# Edit values/nfs-samples/external-nfs-pv.yaml
 namespace: <NAMESPACE>
     name: flink-tools-nfs-pvc
   nfs:
@@ -78,27 +78,15 @@ namespace: <NAMESPACE>
     server: <NFS_SERVER>
 
 # Execute these from ~/flink-tools
-k create -f charts/external-nfs/template/external-nfs-pv.yaml
+k create -f values/nfs-samples/external-nfs-pv.yaml
 
-k create -f charts/external-nfs/template/external-nfs-pvc.yaml -n <NAMESPACE>
+k create -f values/nfs-samples/external-nfs-pvc.yaml -n <NAMESPACE>
 
-# deploy flink job for JFS
-UNINSTALL=1 scripts/jobs/stream-to-nfs-job.sh values/samples/sample1-stream-to-nfs-job.yaml
+# deploy flink job for NFS
+UNINSTALL=1 scripts/jobs/stream-to-file-job.sh values/samples/sample1-stream-to-nfs-job.yaml
 ```
-2. Configure volumes spec in FlinkCluster.yaml
+2. Configure extra NFS moount in values/samples/sample1-stream-to-nfs-job.yaml
 ```
-  {{- if .Values.enableExtraVolume }}
-  volumes:
-    - name: extra-volume
-      persistentVolumeClaim:
-        claimName: flink-tools-nfs-pvc
-  {{- end }}
-```
-3. Configure extra NFS moount in values/samples/sample1-stream-to-nfs-job.yaml
-
-Control the enabling and disabling of extra volume. Ex: enableExtraVolume: true
-```
-enableExtraVolume: true
 jobManager:
   volumeMounts:
     - mountPath: /mnt/nfs
