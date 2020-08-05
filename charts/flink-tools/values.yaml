@@ -23,7 +23,7 @@ localStorage:
   size: "5G"
 #mainClass: Name of main class. REQUIRED.
 
-volumes: {}
+volumes: [] 
 
 mavenCoordinate:
   artifact: "flink-tools"

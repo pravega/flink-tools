@@ -5,7 +5,6 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-enableExtraVolume: false
 appParameters:
   # Events are written in a transaction and committed with this period.
   checkpointIntervalMs: "10000"

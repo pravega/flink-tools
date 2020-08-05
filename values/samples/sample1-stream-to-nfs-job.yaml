@@ -35,3 +35,8 @@ taskManager:
   volumeMounts:
     - mountPath: /mnt/nfs
       name: extra-volume
+
+volumes:
+  - name: extra-volume
+    persistentVolumeClaim:
+      claimName: flink-tools-nfs-pvc
