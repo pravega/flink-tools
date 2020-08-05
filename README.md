@@ -71,7 +71,46 @@ For binary events, you will need to customize the Flink job with the appropriate
 Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
+## Writing to an NFS volume
+Use this procedure to configure the Flink Stream to File job to write to any Kubernetes Persistent Volume, such as a remote NFS volume.
 
+1. Configure and run a PV and PVC.
+```
+# Edit values/nfs-samples/external-nfs-pv.yaml
+namespace: <NAMESPACE>
+    name: flink-tools-nfs-pvc
+  nfs:
+    path: <MOUNT_PATH>
+    server: <NFS_SERVER>
+
+# Execute these from ~/flink-tools
+Set  Namespace
+```
+   export NAMESPACE=examples
+```
+
+kubectl create -f values/nfs-samples/external-nfs-pv.yaml
+
+kubectl create -f values/nfs-samples/external-nfs-pvc.yaml -n ${NAMESPACE}
+
+# deploy flink job for NFS
+UNINSTALL=1 scripts/jobs/stream-to-file-job.sh values/samples/sample1-stream-to-nfs-job.yaml
+```
+2. Configure extra NFS mount in values/samples/sample1-stream-to-nfs-job.yaml
+```
+jobManager:
+  volumeMounts:
+    - mountPath: /mnt/nfs
+      name: extra-volume
+taskManager:
+  volumeMounts:
+    - mountPath: /mnt/examples-sample
+      name: extra-volume
+```
+4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
+```
+  output: "/mnt/nfs"
+``` 
 ### Deploy to SDP using Helm
 
 1. If you will be using HDFS, you must install the Flink cluster image that includes the Hadoop client library.

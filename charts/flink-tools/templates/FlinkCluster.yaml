@@ -22,6 +22,8 @@ spec:
         requests:
           storage: {{ .Values.localStorage.size | quote }}
       storageClassName: standard
+  volumes:
+{{ toYaml .Values.volumes | indent 4 }}
   storage:
     volumeSource:
       persistentVolumeClaim:

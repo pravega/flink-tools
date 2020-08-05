@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: flink-tools-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "nfs"
+  resources:
+    requests:
+      storage: 5Gi
+
