@@ -13,11 +13,13 @@ package io.pravega.flinktools;
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.Filters;
+import io.pravega.flinktools.util.GenericRecordFilters;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
-import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
@@ -27,11 +29,8 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSin
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 //import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
-import org.apache.avro.Schema;
-import org.apache.avro.Schema.Parser;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 
 /**
  * Copy a Pravega stream to a set of files on any Flink file system, including S3.
@@ -88,28 +87,25 @@ public class StreamToParquetFileJob extends AbstractJob {
                     .addSource(flinkPravegaReader)
                     .uid("pravega-reader")
                     .name("pravega-reader");
-//            final DataStream<String> toOutput = Filters.dynamicFilter(lines, getConfig().getParams());
 
-            final DataStream<GenericRecord> records = lines.map((line) -> {
-//                log.info("parsing JSON to Avro; line={}", line);
-                log.info("Parsing schema");
+            // Convert input in JSON format to Avro GenericRecord.
+            // This uses the Avro schema provided as an application parameter.
+            final DataStream<GenericRecord> events = lines.map((line) -> {
                 final Schema schema2 = new Schema.Parser().parse(schemaString);
-                log.info("Creating reader");
                 final DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema2);
-                log.info("Creating decoder for line={}", line);
                 final Decoder decoder = DecoderFactory.get().jsonDecoder(schema2, line);
-                log.info("Reading from decoder");
                 final GenericRecord record = reader.read(null, decoder);
-                log.info("record={}", record);
                 return record;
             });
-            records.printToErr();
+            events.printToErr();
+
+            final DataStream<GenericRecord> toOutput = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
 
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
                     .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(schema))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
-            records.addSink(sink)
+            toOutput.addSink(sink)
                 .uid("file-sink")
                 .name("file-sink");
 
