@@ -20,6 +20,7 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -104,13 +105,13 @@ public class StreamToParquetFileJob extends AbstractJob {
             });
             records.printToErr();
 
-//            final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-//                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(schema))
-//                    .withRollingPolicy(OnCheckpointRollingPolicy.build())
-//                    .build();
-//            records.addSink(sink)
-//                .uid("file-sink")
-//                .name("file-sink");
+            final StreamingFileSink<GenericRecord> sink = StreamingFileSink
+                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(schema))
+                    .withRollingPolicy(OnCheckpointRollingPolicy.build())
+                    .build();
+            records.addSink(sink)
+                .uid("file-sink")
+                .name("file-sink");
 
             log.info("Executing {} job", jobName);
             env.execute(jobName);

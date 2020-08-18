@@ -40,6 +40,7 @@ configurations {
 }
 
 dependencies {
+    compile "org.apache.avro:avro:${avroVersion}"
     // --------------------------------------------------------------
     // Compile-time dependencies that should NOT be part of the
     // shadow jar and are provided in the lib folder of Flink
@@ -58,7 +59,6 @@ dependencies {
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
-//    flinkShadowJar "org.apache.avro:avro:${avroVersion}"
     flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
