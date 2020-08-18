@@ -40,15 +40,12 @@ configurations {
 }
 
 dependencies {
-    compile "org.apache.avro:avro:${avroVersion}"
     // --------------------------------------------------------------
     // Compile-time dependencies that should NOT be part of the
     // shadow jar and are provided in the lib folder of Flink
     // --------------------------------------------------------------
     compile "org.apache.flink:flink-java:${flinkVersion}"
     compile "org.apache.flink:flink-streaming-java_${flinkScalaVersion}:${flinkVersion}"
-//    compile "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
-//    compile "org.apache.avro:avro:${avroVersion}"
 
     // --------------------------------------------------------------
     // Dependencies that should be part of the shadow jar, e.g.
@@ -60,6 +57,9 @@ dependencies {
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
     flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
+    flinkShadowJar "org.apache.avro:avro:${avroVersion}"
+    // Also include Avro in compile list so that it gets added to classpath before old version from Hadoop.
+    compile        "org.apache.avro:avro:${avroVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
