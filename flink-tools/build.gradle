@@ -59,7 +59,7 @@ dependencies {
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
 //    flinkShadowJar "org.apache.avro:avro:${avroVersion}"
-//    flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
+    flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
