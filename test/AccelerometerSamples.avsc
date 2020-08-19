@@ -1,0 +1,14 @@
+{
+  "namespace": "io.pravega.flinktools.util",
+  "type": "record",
+  "name": "AccelerometerSamples",
+  "fields": [
+    {"name": "RemoteAddr", "type": "string"},
+    {"name": "WriterId", "type": "string"},
+    {"name": "EventSequenceNumber", "type": "long"},
+    {"name": "T", "type": {"type": "array", "items": "string"}},
+    {"name": "X", "type": {"type": "array", "items": "double"}},
+    {"name": "Y", "type": {"type": "array", "items": "double"}},
+    {"name": "Z", "type": {"type": "array", "items": "double"}}
+  ]
+}
