@@ -11,7 +11,7 @@
 package io.pravega.flinktools.util;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Serializes a Java class to JSON.
