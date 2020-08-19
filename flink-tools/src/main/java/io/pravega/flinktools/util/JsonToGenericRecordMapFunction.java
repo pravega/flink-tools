@@ -24,14 +24,15 @@ import org.slf4j.LoggerFactory;
 public class JsonToGenericRecordMapFunction extends RichMapFunction<String, GenericRecord> {
     final private static Logger log = LoggerFactory.getLogger(JsonToGenericRecordMapFunction.class);
 
-    final String schemaString;
+    // Avro schema in JSON format.
+    private final String schemaString;
 
     // Cannot be serialized so we create these in open().
     private transient DatumReader<GenericRecord> reader;
     private transient Schema schema;
 
-    public JsonToGenericRecordMapFunction(String schemaString) {
-        this.schemaString = schemaString;
+    public JsonToGenericRecordMapFunction(Schema schema) {
+        this.schemaString = schema.toString();
     }
 
     @Override

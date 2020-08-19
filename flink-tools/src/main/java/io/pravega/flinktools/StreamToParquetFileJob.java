@@ -12,15 +12,10 @@ package io.pravega.flinktools;
 
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
-import io.pravega.flinktools.util.Filters;
 import io.pravega.flinktools.util.GenericRecordFilters;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.DatumReader;
-import org.apache.avro.io.Decoder;
-import org.apache.avro.io.DecoderFactory;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
@@ -30,8 +25,6 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSin
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-//import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
 
 /**
  * Copy a Pravega stream to a set of files on any Flink file system, including S3.
@@ -70,7 +63,6 @@ public class StreamToParquetFileJob extends AbstractJob {
             if (schemaString.isEmpty()) {
                 throw new IllegalArgumentException("Required parameter avroSchema is missing");
             }
-            log.info("Avro schema: {}", schemaString);
             final Schema schema = new Schema.Parser().parse(schemaString);
             log.info("Avro schema: {}", schema);
 
@@ -92,7 +84,7 @@ public class StreamToParquetFileJob extends AbstractJob {
             // Convert input in JSON format to Avro GenericRecord.
             // This uses the Avro schema provided as an application parameter.
             final DataStream<GenericRecord> events = lines
-                    .map(new JsonToGenericRecordMapFunction(schemaString))
+                    .map(new JsonToGenericRecordMapFunction(schema))
                     .uid("JsonToGenericRecordMapFunction")
                     .name("JsonToGenericRecordMapFunction");
             events.printToErr();
