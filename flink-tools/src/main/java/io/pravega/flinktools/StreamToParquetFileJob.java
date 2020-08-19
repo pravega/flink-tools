@@ -14,6 +14,7 @@ import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.Filters;
 import io.pravega.flinktools.util.GenericRecordFilters;
+import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
@@ -90,13 +91,10 @@ public class StreamToParquetFileJob extends AbstractJob {
 
             // Convert input in JSON format to Avro GenericRecord.
             // This uses the Avro schema provided as an application parameter.
-            final DataStream<GenericRecord> events = lines.map((line) -> {
-                final Schema schema2 = new Schema.Parser().parse(schemaString);
-                final DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema2);
-                final Decoder decoder = DecoderFactory.get().jsonDecoder(schema2, line);
-                final GenericRecord record = reader.read(null, decoder);
-                return record;
-            });
+            final DataStream<GenericRecord> events = lines
+                    .map(new JsonToGenericRecordMapFunction(schemaString))
+                    .uid("JsonToGenericRecordMapFunction")
+                    .name("JsonToGenericRecordMapFunction");
             events.printToErr();
 
             final DataStream<GenericRecord> toOutput = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());

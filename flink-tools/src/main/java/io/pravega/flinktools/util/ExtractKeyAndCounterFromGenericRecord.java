@@ -54,7 +54,7 @@ public class ExtractKeyAndCounterFromGenericRecord implements FlatMapFunction<Ge
                 throw new NumberFormatException("Counter field '" + counterFieldName + "' must be a long integer");
             }
             final Long counter = (Long) counterObject;
-            log.error("key={}, counter=({}){}", row, counterObject.getClass().getName(), counter);
+            log.debug("key={}, counter={}", row, counter);
             out.collect(Tuple3.of(value, row, counter));
         } catch (NoSuchFieldException | NumberFormatException e) {
             if (continueOnErrors) {
