@@ -25,4 +25,8 @@ spec:
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
     {{- end }}
+    {{- range $key, $value := .Values.appParametersJson }}
+    - name: {{ $key | quote }}
+      value: {{ $value | toJson | b64enc | quote }}
+    {{- end }}
   state: started

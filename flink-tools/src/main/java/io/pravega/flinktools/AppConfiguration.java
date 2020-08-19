@@ -45,6 +45,7 @@ public class AppConfiguration {
     private final boolean enableRebalance;
     private final long maxOutOfOrdernessMs;
     private final String jobName;
+    private final String avroSchema;
 
     public AppConfiguration(String[] args) {
         params = ParameterTool.fromArgs(args);
@@ -58,6 +59,14 @@ public class AppConfiguration {
         enableRebalance = getParams().getBoolean("rebalance", true);
         maxOutOfOrdernessMs = getParams().getLong("maxOutOfOrdernessMs", 1000);
         jobName = getParams().get("jobName");
+
+        // Use base 64 for Avro schema to avoid complications with passing double quotes on the command line.
+        final String avroSchemaBase64 = getParams().get("avroSchema", "");
+        if (avroSchemaBase64.isEmpty()) {
+            avroSchema = null;
+        } else {
+            avroSchema = new String(Base64.getDecoder().decode(avroSchemaBase64), StandardCharsets.UTF_8);
+        }
     }
 
     @Override
@@ -72,6 +81,7 @@ public class AppConfiguration {
                 ", enableRebalance=" + enableRebalance +
                 ", maxOutOfOrdernessMs=" + maxOutOfOrdernessMs +
                 ", jobName=" + jobName +
+                ", avroSchema=" + avroSchema +
                 '}';
     }
 
@@ -117,6 +127,10 @@ public class AppConfiguration {
 
     public String getJobName(String defaultJobName) {
         return (jobName == null) ? defaultJobName : jobName;
+    }
+
+    public String getAvroSchema() {
+        return avroSchema;
     }
 
     public static class StreamConfig {

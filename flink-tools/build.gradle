@@ -55,6 +55,11 @@ dependencies {
     flinkShadowJar "com.github.vladimir-bukhtoyarov:bucket4j-core:${bucket4jVersion}"
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
+    flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
+    flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
+    flinkShadowJar "org.apache.avro:avro:${avroVersion}"
+    // Also include Avro in compile list so that it gets added to classpath before old version from Hadoop.
+    compile        "org.apache.avro:avro:${avroVersion}"
 
     if (includePravegaCredentials.toBoolean()) {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"

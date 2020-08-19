@@ -6,8 +6,6 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 appParameters:
-  eventsPerSec: 1.0
-  numSensors: 3
-  dataSizeBytes: 10
-  output-stream: "sample1"
-  output-minNumSegments: 1
+  # Files will be created with this interval.
+  checkpointIntervalMs: "60000"
+mainClass: io.pravega.flinktools.StreamToParquetFileJob

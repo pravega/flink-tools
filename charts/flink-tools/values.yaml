@@ -8,6 +8,9 @@
 appParameters:
   enableOperatorChaining: "false"
 
+# These parameters are converted to JSON and then base-64 encoded.
+appParametersJson: []
+
 # For Flink 1.9, SDP 1.0
 #flinkVersion: "1.9.0"
 #imageRef:
@@ -28,7 +31,7 @@ volumes: []
 mavenCoordinate:
   artifact: "flink-tools"
   group: "io.pravega"
-  version: "0.1.0"
+  version: "0.2.0"
 parallelism: 1
 jobManager:
   cpu: "1000m"

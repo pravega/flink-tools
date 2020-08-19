@@ -6,4 +6,4 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-kubectl run --image danisla/hadoop:2.9.0 --generator=run-pod/v1 -it hadoop bash
+kubectl run --image danisla/hadoop:2.9.0 --generator=run-pod/v1 -it --rm hadoop-$(uuidgen) bash

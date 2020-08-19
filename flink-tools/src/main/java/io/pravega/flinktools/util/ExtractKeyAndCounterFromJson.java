@@ -63,6 +63,8 @@ public class ExtractKeyAndCounterFromJson implements FlatMapFunction<String, Tup
         } catch (JsonParseException | NoSuchFieldException | NumberFormatException e) {
             if (continueOnErrors) {
                 log.warn("Unable to extract key and counter", e);
+            } else {
+                throw e;
             }
         }
     }

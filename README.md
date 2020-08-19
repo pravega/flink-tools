@@ -13,7 +13,8 @@ Pravega Flink Tools is a collection of Apache Flink applications for working wit
 
 It provides the following Flink jobs:
 
-- **stream-to-file**: Continuously copy a Pravega stream to files on S3, HDFS, or any other Flink-supported file system
+- **stream-to-file**: Continuously copy a Pravega stream to text files on S3, HDFS, or any other Flink-supported file system
+- **stream-to-parquet-file**: Continuously copy a Pravega stream to Parquet files on S3, HDFS, or any other Flink-supported file system
 - **stream-to-stream**: Continuously copy a Pravega stream to another Pravega stream, even on a different Pravega cluster
 - **stream-to-console**: Continuously show the contents of a Pravega stream in a human-readable log file
 - **sample-data-generator**: Continuously write synthetic data to Pravega for testing
@@ -41,12 +42,12 @@ To learn more about Pravega, visit http://pravega.io
   including open-source, although the exact
   deployment methods depend on your environment and are not documented here.
 
-## Stream-to-file: Continuously copying a Pravega stream to files
+## Stream-to-File: Continuously copying a Pravega stream to text files
 
 ### Overview
 
-This Flink job will continuously copy a Pravega stream to a set of files 
-on S3, HDFS, or any other Flink-supported file system.
+This Flink job will continuously copy a Pravega stream to a set of text files 
+on S3, HDFS, NFS, or any other Flink-supported file system.
 It uses Flink checkpoints to provide exactly-once guarantees, ensuring that events
 are never missed nor duplicated.
 It automatically recovers from failures and resumes where it left off.
@@ -65,52 +66,48 @@ sample1/2020-05-10--19/part-0-61
 ```
 
 For simplicity, the current implementation assumes that events are UTF-8 strings such as CSV or JSON.
-When written to files, each event will be followed by a new line.
+When written to text files, each event will be followed by a new line.
 For binary events, you will need to customize the Flink job with the appropriate serialization classes.
 
 Flink offers many options for customizing the behavior when writing files.
 Refer to [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
 for details.
-## Writing to an NFS volume
-Use this procedure to configure the Flink Stream to File job to write to any Kubernetes Persistent Volume, such as a remote NFS volume.
 
-1. Configure and run a PV and PVC.
-```
-# Edit values/nfs-samples/external-nfs-pv.yaml
-namespace: <NAMESPACE>
-    name: flink-tools-nfs-pvc
-  nfs:
-    path: <MOUNT_PATH>
-    server: <NFS_SERVER>
+### Deploy to SDP using the SDP UI
 
-# Execute these from ~/flink-tools
-Set  Namespace
-```
-   export NAMESPACE=examples
-```
+Below shows how to deploy this Flink job using the SDP UI.
+If you would rather use a more automated deployment method, skip to the next section.
 
-kubectl create -f values/nfs-samples/external-nfs-pv.yaml
+1. Build the JAR file.
+   ```shell script
+   ./gradlew clean shadowJar
+   ```
 
-kubectl create -f values/nfs-samples/external-nfs-pvc.yaml -n ${NAMESPACE}
+2. Upload the artifact:
+   - group: io.pravega
+   - artifact: flink-tools
+   - version: 0.2.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
 
-# deploy flink job for NFS
-UNINSTALL=1 scripts/jobs/stream-to-file-job.sh values/samples/sample1-stream-to-nfs-job.yaml
-```
-2. Configure extra NFS mount in values/samples/sample1-stream-to-nfs-job.yaml
-```
-jobManager:
-  volumeMounts:
-    - mountPath: /mnt/nfs
-      name: extra-volume
-taskManager:
-  volumeMounts:
-    - mountPath: /mnt/examples-sample
-      name: extra-volume
-```
-4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
-```
-  output: "/mnt/nfs"
-``` 
+3. Create Flink Cluster.
+   - Name: stream-to-file
+   - Flink Image: 1.10.0-2.12-hadoop2.8.3 (1.10.0)
+   - Replicas: 1
+   - Task Slots: 1
+   
+4. Create New App.
+   - Name: stream-to-file
+   - Artifact: io.pravega:fliink-tools:0.2.0
+   - Main Class: io.pravega.flinktools.StreamToFileJob
+   - Cluster Selectors: name: stream-to-file
+   - Parallelism: 1
+   - Flink Version: 1.10.0
+   - Add Parameters:
+     - output: hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1
+     - scope: examples (This should match your SDP project name.)
+   - Add Stream:
+     - input-stream: sample1
+
 ### Deploy to SDP using Helm
 
 1. If you will be using HDFS, you must install the Flink cluster image that includes the Hadoop client library.
@@ -142,7 +139,6 @@ taskManager:
    
 5. Launch the Flink job using Helm.
    ```shell script
-   source scripts/env-local.sh
    scripts/jobs/stream-to-file-job.sh values/local/my-stream-to-file-job.yaml
    ```
 
@@ -151,6 +147,95 @@ taskManager:
 7. To stop the job and delete all associated state:
    ```
    helm del my-stream-to-file-job -n ${NAMESPACE}
+   ```
+
+## Stream-to-Parquet-File: Continuously copying a Pravega stream to Parquet files
+
+### Overview
+
+This Flink job will continuously copy a Paravega stream to a set of 
+[Apache Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) files 
+on S3, HDFS, NFS, or any other Flink-supported file system.
+
+Apache Parquet is a column-oriented data storage format of the Apache Hadoop ecosystem.
+It provides efficient data compression and encoding schemes with enhanced performance to handle complex data in bulk.
+
+This Flink job uses Flink checkpoints to provide exactly-once guarantees, ensuring that events
+are never missed nor duplicated.
+It automatically recovers from failures and resumes where it left off.
+It can use parallelism for high-volume streams with multiple segments.
+
+Input events must be in JSON format.
+To ensure that JSON events can be reliable converted to Parquet, you must specify the
+[Apache Avro schema](http://avro.apache.org/docs/1.8.2/spec.html) that corresponds to the JSON events.
+
+By default, it writes a new file every 1 minute. 
+Files are written using the following directory structure.
+```
+sample1/2020-05-10--18/part-0-0
+sample1/2020-05-10--18/part-0-1
+sample1/2020-05-10--18/part-0-2
+...
+sample1/2020-05-10--18/part-0-59
+sample1/2020-05-10--19/part-0-60
+sample1/2020-05-10--19/part-0-61
+```
+
+### Deploy to SDP
+
+Refer to the method described in the Stream-to-File section.
+Use the script `scripts/jobs/stream-to-parquet-file-job.sh` and a values file similar to 
+`values/samples/sample1-stream-to-parquet-hdfs-job.yaml`.
+
+### How to view Parquet files
+
+Use can use commands similar to the following to view the contents of a Parquet file.
+
+```
+scripts/hadoop-bash.sh
+root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
+wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
+hadoop jar parquet-tools-1.11.1.jar cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
+```
+
+## Writing to an NFS volume
+
+Use this procedure to configure the Flink Stream to File job to write to any Kubernetes Persistent Volume, such as a remote NFS volume.
+
+1. Create a Persistent Volume and a Persistent Volume Claim.
+
+   a. Edit `values/nfs-samples/external-nfs-pv.yaml` and
+      `values/nfs-samples/external-nfs-pv.yaml`.
+      
+   b. Create objects.
+      ```
+      export NAMESPACE=examples
+      kubectl create -f values/nfs-samples/external-nfs-pv.yaml
+      kubectl create -f values/nfs-samples/external-nfs-pvc.yaml -n ${NAMESPACE}
+      ```
+
+2. Configure extra NFS mount in `values/samples/sample1-stream-to-nfs-job.yaml`
+   ```
+   jobManager:
+     volumeMounts:
+       - mountPath: /mnt/nfs
+         name: extra-volume
+   taskManager:
+     volumeMounts:
+       - mountPath: /mnt/examples-sample
+         name: extra-volume
+   ```
+
+4. Configure mount path in values/samples/sample1-stream-to-nfs-job.yaml
+
+   ```
+   output: "/mnt/nfs"
+   ```
+
+5. Deploy Flink job for NFS.
+
+   ```
+   scripts/jobs/stream-to-file-job.sh values/samples/sample1-stream-to-nfs-job.yaml
    ```
 
 ## Stream-to-Stream: Continuously copying a Pravega stream to another Pravega stream
@@ -163,9 +248,9 @@ are never missed nor duplicated.
 It automatically recovers from failures and resumes where it left off.
 It can use parallelism for high-volume streams with multiple segments.
 
-### Deploy to SDP using Helm
+### Deploy to SDP
 
-Refer to the method described in the Stream-to-file section. 
+Refer to the method described in the Stream-to-File section.
 
 ## Sample data generator
 
@@ -180,10 +265,6 @@ Events are in the format shown below.
 {"sensorId":0,"eventNumber":42,"timestamp":1591294714504,"timestampStr":"2020-06-04 18:18:34.504","data":"xxxxx..."}
 ```
 
-### Deploy to SDP using Helm
-
-Refer to the method described in the Stream-to-file section. 
-
 ### Deploy to SDP using the SDP UI
 
 Below shows how to deploy this Flink job using the SDP UI.
@@ -196,21 +277,30 @@ Below shows how to deploy this Flink job using the SDP UI.
 2. Upload the artifact:
    - group: io.pravega
    - artifact: flink-tools
-   - version: 0.1.0
-   - file: flink-tools/build/libs/pravega-flink-tools-0.1.0.jar
+   - version: 0.2.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
+
+3. Create Flink Cluster.
+   - Name: sample-data-generator-job
+   - Flink Image: 1.10.0-2.12 (1.10.0)
+   - Replicas: 1
+   - Task Slots: 1
    
-3. Create New App.
+4. Create New App.
+   - Name: sample-data-generator-job
+   - Artifact: io.pravega:fliink-tools:0.2.0
    - Main Class: io.pravega.flinktools.SampleDataGeneratorJob
+   - Cluster Selectors: name: sample-data-generator-job
+   - Parallelism: 1
    - Flink Version: 1.10.0
    - Add Parameters:
      - scope: examples (This should match your SDP project name.)
    - Add Stream:
      - output-stream: sample1 (Select the stream to write to.)
-        
-4. Create Flink Cluster.
-   - Flink Image: 1.10.0-2.12 (1.10.0)
-   - Replicas: 1
-   - Task Slots: 1     
+
+### Deploy to SDP using Helm
+
+Refer to the method described in the Stream-to-file section. 
 
 ## Deduplication of events
 
