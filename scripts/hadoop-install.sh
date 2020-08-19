@@ -19,5 +19,5 @@ helm upgrade --install --timeout 600s --wait --debug \
     $@
 
 kubectl run --image danisla/hadoop:2.9.0 --generator=run-pod/v1 \
-    --rm --attach --restart=Never hadoop-$(uuidgen) -n ${NAMESPACE} -- \
+    --rm --attach --restart=Never -n ${NAMESPACE} hadoop-$(uuidgen) -- \
     hadoop fs -chmod 777 hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/

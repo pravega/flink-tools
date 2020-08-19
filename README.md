@@ -187,6 +187,17 @@ Refer to the method described in the Stream-to-File section.
 Use the script `scripts/jobs/stream-to-parquet-file-job.sh` and a values file similar to 
 `values/samples/sample1-stream-to-parquet-hdfs-job.yaml`.
 
+### How to view Parquet files
+
+Use can use commands similar to the following to view the contents of a Parquet file.
+
+```
+scripts/hadoop-bash.sh
+root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
+wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
+hadoop jar parquet-tools-1.11.1.jar cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
+```
+
 ## Writing to an NFS volume
 
 Use this procedure to configure the Flink Stream to File job to write to any Kubernetes Persistent Volume, such as a remote NFS volume.
