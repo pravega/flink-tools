@@ -196,8 +196,8 @@ Below shows how to deploy this Flink job using the SDP UI.
 2. Upload the artifact:
    - group: io.pravega
    - artifact: flink-tools
-   - version: 0.1.0
-   - file: flink-tools/build/libs/pravega-flink-tools-0.1.0.jar
+   - version: 0.2.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
    
 3. Create New App.
    - Main Class: io.pravega.flinktools.SampleDataGeneratorJob

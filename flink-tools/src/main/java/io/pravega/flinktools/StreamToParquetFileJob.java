@@ -87,7 +87,11 @@ public class StreamToParquetFileJob extends AbstractJob {
                     .map(new JsonToGenericRecordMapFunction(schema))
                     .uid("JsonToGenericRecordMapFunction")
                     .name("JsonToGenericRecordMapFunction");
-            events.printToErr();
+
+            final boolean logOutput = getConfig().getParams().getBoolean("logOutputRecords", false);
+            if (logOutput) {
+                events.print("output");
+            }
 
             final DataStream<GenericRecord> toOutput = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
 

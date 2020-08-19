@@ -1,0 +1,42 @@
+# Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+appParameters:
+  # Files will be created and written with this interval.
+  checkpointIntervalMs: "10000"
+  checkpointTimeoutMs: "3600000"  # 1 hr
+  input-stream: "sample1"
+  #input-startAtTail: "false"
+  #input-startStreamCut: "UNBOUNDED"
+  output: "hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet"
+  #parallelism: "1"
+  # Key for deduplication
+  keyFieldNames: "sensorId"
+  # Ascending counter for deduplication
+  counterFieldName: "eventNumber"
+  logOutputRecords: "false"
+  dummy: "1"
+appParametersJson:
+  # Writing to a Parquet file requires defining an Avro schema for the JSON input.
+  # See http://avro.apache.org/docs/1.8.2/spec.html.
+  avroSchema:
+    {
+      "namespace": "io.pravega.flinktools.util",
+      "type": "record",
+      "name": "SampleEvent",
+      "fields": [
+        {"name": "sensorId", "type": "int"},
+        {"name": "eventNumber", "type": "long"},
+        {"name": "timestampStr", "type": "string"},
+        {"name": "data", "type": "string"}
+      ]
+    }
+imageRef:
+  name: "1.10.0-2.12-hadoop2.8.3"
+clusterConfiguration:
+  taskmanager.memory.jvm-metaspace.size: "536870912"  # 512 MiB
+mainClass: io.pravega.flinktools.StreamToParquetFileJob
