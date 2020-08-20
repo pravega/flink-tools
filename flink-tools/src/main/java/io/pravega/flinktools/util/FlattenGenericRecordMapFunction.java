@@ -31,6 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 
 
+/**
+ * This class flattens fields containing arrays in GenericRecords.
+ * Non-array fields are duplicated.
+ */
 public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<GenericRecord, GenericRecord> {
     final private static Logger log = LoggerFactory.getLogger(FlattenGenericRecordMapFunction.class);
 
@@ -43,6 +47,8 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
     // This is currently calculated to be the first array in the schema.
     final Integer primaryArrayFieldIndex;
 
+    // Schema is not serializable so they must be transient.
+    // The open() method will initialize these.
     private transient Schema inputSchema;
     private transient Schema outputSchema;
 
@@ -54,33 +60,31 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
         fields = transformedSchema.f1;
         primaryArrayFieldIndex = transformedSchema.f2;
         outputSchemaString = outputSchema.toString();
-//        parseSchema();
     }
 
+    /**
+     * Transform an Avro schema containing arrays to one without arrays.
+     *
+     * This parses and edits the Avro schema as JSON.
+     */
     static Tuple3<Schema,List<Boolean>,Integer> transformSchema(Schema schema) {
-        final List<Boolean> fieldsToFlatten = new ArrayList<>();
-        Integer primaryArrayFieldIndex = null;
         try {
+            final List<Boolean> fieldsToFlatten = new ArrayList<>();
+            Integer primaryArrayFieldIndex = null;
             final ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(schema.toString());
-            log.info("rootNode={}", rootNode);
             final ArrayNode fields = (ArrayNode) rootNode.get("fields");
             final Iterator<JsonNode> elements = fields.elements();
             while (elements.hasNext()) {
                 final JsonNode field = elements.next();
                 final ObjectNode fieldObject = (ObjectNode) field;
-//                log.info("field={}", field);
                 final JsonNode fieldType = field.get("type");
-//                log.info("fieldType={}", fieldType);
                 final boolean flatten;
                 if (fieldType instanceof ObjectNode) {
                     final ObjectNode fieldTypeObject = (ObjectNode) fieldType;
                     final JsonNode fieldTypeType = fieldTypeObject.get("type");
-//                    log.info("fieldTypeType={}", fieldTypeType);
                     if (fieldTypeType.isTextual() || fieldTypeType.asText().equals("array")) {
-//                        log.info("    array");
                         final JsonNode elementType = fieldTypeObject.get("items");
-//                        log.info("    elementType={}", elementType);
                         fieldObject.set("type", elementType);
                         if (primaryArrayFieldIndex == null) {
                             primaryArrayFieldIndex = fieldsToFlatten.size();
@@ -94,8 +98,6 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
                 }
                 fieldsToFlatten.add(flatten);
             }
-            log.info("flattened rootNode={}", rootNode);
-            log.info("fieldsToFlatten={}", fieldsToFlatten);
             final Schema outputSchema = new Schema.Parser().parse(rootNode.toString());
             return new Tuple3<>(outputSchema, fieldsToFlatten, primaryArrayFieldIndex);
         } catch (JsonProcessingException e) {
@@ -112,17 +114,15 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
+    public void open(Configuration parameters) {
         inputSchema = new Schema.Parser().parse(inputSchemaString);
         outputSchema = new Schema.Parser().parse(outputSchemaString);
     }
 
     @Override
-    public void flatMap(GenericRecord value, Collector<GenericRecord> out) throws Exception {
-//        log.info("T type={}", value.get("T").getClass().getName());
+    public void flatMap(GenericRecord value, Collector<GenericRecord> out) {
         final ArrayList<?> primaryArray = (ArrayList<?>) value.get(primaryArrayFieldIndex);
         final int size = primaryArray.size();
-//        log.info("size={}", size);
         for (int arrayElementIndex = 0 ; arrayElementIndex < size ; arrayElementIndex++) {
             GenericData.Record outputRecord = new GenericData.Record(outputSchema);
             for (int fieldIndex = 0; fieldIndex < fields.size() ; fieldIndex++) {
@@ -134,9 +134,6 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
                     outputRecord.put(fieldIndex, value.get(fieldIndex));
                 }
             }
-//            log.info("element[{}]={}", arrayElementIndex, array.get(arrayElementIndex));
-//            outputRecord.put("X", array.get(arrayElementIndex));
-            log.info("outputRecord={}", outputRecord);
             out.collect(outputRecord);
         }
     }

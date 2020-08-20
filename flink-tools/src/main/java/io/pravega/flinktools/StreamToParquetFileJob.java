@@ -65,7 +65,7 @@ public class StreamToParquetFileJob extends AbstractJob {
                 throw new IllegalArgumentException("Required parameter avroSchema is missing");
             }
             final Schema schema = new Schema.Parser().parse(schemaString);
-            log.info("Avro schema: {}", schema);
+            log.info("Input Avro schema: {}", schema);
 
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
@@ -89,22 +89,32 @@ public class StreamToParquetFileJob extends AbstractJob {
                     .uid("JsonToGenericRecordMapFunction")
                     .name("JsonToGenericRecordMapFunction");
 
-            final boolean logOutput = getConfig().getParams().getBoolean("logOutputRecords", false);
-            if (logOutput) {
-                events.print("output");
-            }
-
             final DataStream<GenericRecord> filtered = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
 
-            FlattenGenericRecordMapFunction transformer = new FlattenGenericRecordMapFunction(schema);
-            final DataStream<GenericRecord> transformed = filtered
-                    .flatMap(transformer)
-                    .uid("transformer")
-                    .name("transformer");
-            transformed.printToErr();
-            final DataStream<GenericRecord> toOutput = transformed;
-            final Schema outputSchema = transformer.getOutputSchema();
-            log.info("outputSchema={}", outputSchema);
+            // Flatten fields containing arrays.
+            final boolean flatten = getConfig().getParams().getBoolean("flatten", false);
+            log.info("Flatten records: {}", flatten);
+            final DataStream<GenericRecord> toOutput;
+            final Schema outputSchema;
+            if (flatten) {
+                final FlattenGenericRecordMapFunction transformer = new FlattenGenericRecordMapFunction(schema);
+                final DataStream<GenericRecord> transformed = filtered
+                        .flatMap(transformer)
+                        .uid("transformer")
+                        .name("transformer");
+                transformed.printToErr();
+                toOutput = transformed;
+                outputSchema = transformer.getOutputSchema();
+            } else {
+                toOutput = filtered;
+                outputSchema = schema;
+            }
+            log.info("Output Avro schema: {}", outputSchema);
+
+            final boolean logOutput = getConfig().getParams().getBoolean("logOutputRecords", false);
+            if (logOutput) {
+                toOutput.print("output");
+            }
 
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
                     .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema))
