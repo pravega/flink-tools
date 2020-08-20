@@ -12,6 +12,7 @@ package io.pravega.flinktools;
 
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
+import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
@@ -93,10 +94,20 @@ public class StreamToParquetFileJob extends AbstractJob {
                 events.print("output");
             }
 
-            final DataStream<GenericRecord> toOutput = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
+            final DataStream<GenericRecord> filtered = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
+
+            FlattenGenericRecordMapFunction transformer = new FlattenGenericRecordMapFunction(schema);
+            final DataStream<GenericRecord> transformed = filtered
+                    .flatMap(transformer)
+                    .uid("transformer")
+                    .name("transformer");
+            transformed.printToErr();
+            final DataStream<GenericRecord> toOutput = transformed;
+            final Schema outputSchema = transformer.getOutputSchema();
+            log.info("outputSchema={}", outputSchema);
 
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(schema))
+                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)
