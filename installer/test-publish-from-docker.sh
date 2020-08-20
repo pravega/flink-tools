@@ -13,4 +13,4 @@ export MAVEN_USERNAME="${MAVEN_USERNAME:-desdp}"
 export MAVEN_PASSWORD="${MAVEN_PASSWORD:-password}"
 rm -rf flink-tools
 tar -xzf /tmp/dockertmp/flink-tools.tgz
-flink-tools/scripts/publish-from-jar.sh
+flink-tools/scripts/publish.sh
