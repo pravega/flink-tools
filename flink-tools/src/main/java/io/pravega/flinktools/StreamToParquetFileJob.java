@@ -98,12 +98,10 @@ public class StreamToParquetFileJob extends AbstractJob {
             final Schema outputSchema;
             if (flatten) {
                 final FlattenGenericRecordMapFunction transformer = new FlattenGenericRecordMapFunction(schema);
-                final DataStream<GenericRecord> transformed = filtered
+                toOutput = filtered
                         .flatMap(transformer)
                         .uid("transformer")
                         .name("transformer");
-                transformed.printToErr();
-                toOutput = transformed;
                 outputSchema = transformer.getOutputSchema();
             } else {
                 toOutput = filtered;

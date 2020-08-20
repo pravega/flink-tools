@@ -68,7 +68,7 @@ public class AppConfiguration {
         if (avroSchemaBase64.isEmpty()) {
             final String avroSchemaFileName = getParams().get("avroSchemaFile", "");
             if (avroSchemaFileName.isEmpty()) {
-                avroSchema = null;
+                avroSchema = "";
             } else {
                 avroSchema = new String(Files.readAllBytes(Paths.get(avroSchemaFileName)), StandardCharsets.UTF_8);
             }

@@ -26,6 +26,7 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -100,7 +101,7 @@ public class FlattenGenericRecordMapFunction extends RichFlatMapFunction<Generic
             }
             final Schema outputSchema = new Schema.Parser().parse(rootNode.toString());
             return new Tuple3<>(outputSchema, fieldsToFlatten, primaryArrayFieldIndex);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new SchemaParseException(e);
         }
     }

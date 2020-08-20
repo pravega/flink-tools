@@ -219,9 +219,17 @@ Use the script `scripts/jobs/stream-to-parquet-file-job.sh` and a values file si
 
 ### How to view Parquet files
 
-Use can use commands similar to the following to view the contents of a Parquet file.
+If the Parquet file is located on a standard Linux file system (including NFS),
+you can use a command similar to the following to view the content.
 
-```
+```shell script
+scripts/parquet-tools.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
+``` 
+
+If the Parquet file is located on an HDFS cluster in Kubernetes,
+you can use commands similar to the following to view the content.
+
+```shell script
 scripts/hadoop-bash.sh
 root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
 wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar

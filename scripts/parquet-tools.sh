@@ -9,4 +9,4 @@
 set -ex
 JAR_FILE=/tmp/parquet-tools-1.11.1.jar
 [ -f ${JAR_FILE} ] || wget -O ${JAR_FILE} https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
-docker run --rm -it -v /tmp:/tmp danisla/hadoop:2.9.0 hadoop jar /tmp/parquet-tools-1.11.1.jar $*
+docker run --rm -it -v /tmp:/tmp -v /desdp:/desdp danisla/hadoop:2.9.0 hadoop jar /tmp/parquet-tools-1.11.1.jar $*
