@@ -7,5 +7,10 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)
-${ROOT_DIR}/gradle/bin/gradle -p ${ROOT_DIR} publish $*
+cd
+export MAVEN_URL="${MAVEN_URL:-http://repo.examples.jubilee.em.sdp.hop.lab.emc.com/maven2}"
+export MAVEN_USERNAME="${MAVEN_USERNAME:-desdp}"
+export MAVEN_PASSWORD="${MAVEN_PASSWORD:-password}"
+rm -rf flink-tools
+tar -xzf /tmp/dockertmp/flink-tools.tgz
+flink-tools/scripts/publish-from-jar.sh

@@ -7,10 +7,10 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/..
-INSTALLER_NAME=flink-tools-installer
-INSTALLER_BUILD_DIR=${ROOT_DIR}/build/${INSTALLER_NAME}
-INSTALLER_TGZ=${ROOT_DIR}/build/${INSTALLER_NAME}.tgz
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
+APP_NAME=flink-tools
+INSTALLER_BUILD_DIR=${ROOT_DIR}/build/installer/${APP_NAME}
+INSTALLER_TGZ=${ROOT_DIR}/build/installer/${APP_NAME}.tgz
 
 # Delete output directories and files.
 rm -rf ${INSTALLER_BUILD_DIR} ${INSTALLER_TGZ}
@@ -21,25 +21,34 @@ ${ROOT_DIR}/gradlew -p ${ROOT_DIR} shadowJar
 
 # Download and extract Gradle.
 GRADLE_VERSION=6.3
-GRADLE_FILE=/tmp/gradle-${GRADLE_VERSION}-bin.zip
+GRADLE_FILE=${ROOT_DIR}/build/installer/gradle-${GRADLE_VERSION}-bin.zip
 [ -f ${GRADLE_FILE} ] || wget -O ${GRADLE_FILE} https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 unzip -q -d ${INSTALLER_BUILD_DIR} ${GRADLE_FILE}
 mv -v ${INSTALLER_BUILD_DIR}/gradle-${GRADLE_VERSION} ${INSTALLER_BUILD_DIR}/gradle
 
-# Copy other files required for offline install.
+# Copy Flink application JAR.
+mkdir -p ${INSTALLER_BUILD_DIR}/flink-tools/build
 cp -v \
-  ${ROOT_DIR}/flink-tools/build/libs/* \
-  ${ROOT_DIR}/offline-installer/build.gradle \
-  ${ROOT_DIR}/offline-installer/publish.sh \
-  ${ROOT_DIR}/offline-installer/settings.gradle \
-  ${INSTALLER_BUILD_DIR}
+  ${ROOT_DIR}/flink-tools/build/libs \
+  ${INSTALLER_BUILD_DIR}/flink-tools/build
+
+# Copy other files required for an offline install.
+cp -rv \
+  ${ROOT_DIR}/charts \
+  ${ROOT_DIR}/flink-image \
+  ${ROOT_DIR}/installer \
+  ${ROOT_DIR}/scripts \
+  ${ROOT_DIR}/test \
+  ${ROOT_DIR}/values \
+  ${ROOT_DIR}/LICENSE \
+  ${ROOT_DIR}/README.md \
+  ${INSTALLER_BUILD_DIR}/
 
 # Create installer archive.
-tar -C ${ROOT_DIR}/build -czf ${INSTALLER_TGZ} ${INSTALLER_NAME}
+tar -C ${INSTALLER_BUILD_DIR}/.. -czf ${INSTALLER_TGZ} ${APP_NAME}
 tar -tzvf ${INSTALLER_TGZ}
 
-# Extract for testing.
-TEST_DIR=${ROOT_DIR}/offline-installer/test
-rm -rf ${TEST_DIR}
-mkdir -p ${TEST_DIR}
-cp ${INSTALLER_TGZ} ${TEST_DIR}
+# Copy to testing directory.
+#TEST_DIR=/tmp/dockertmp
+#mkdir -p ${TEST_DIR}
+#cp ${INSTALLER_TGZ} ${TEST_DIR}/
