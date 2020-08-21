@@ -15,8 +15,7 @@ export MAVEN_URL="${MAVEN_URL:-http://$(kubectl get ing -n ${NAMESPACE?"You must
 export MAVEN_USERNAME="${MAVEN_USERNAME:-desdp}"
 export MAVEN_PASSWORD="${MAVEN_PASSWORD:-$(kubectl get secret keycloak-${MAVEN_USERNAME} -n nautilus-system -o jsonpath='{.data.password}' | base64 -d)}"
 
-export APP_ARTIFACT=${ROOT_DIR}/libs/pravega-flink-tools-${APP_VERSION}.jar
-export GRADLE_OPTIONS="-PincludeHadoopS3=false"
+export APP_ARTIFACT=${ROOT_DIR}/flink-tools/build/libs/pravega-flink-tools-${APP_VERSION}.jar
 
 if [[ -f ${ROOT_DIR}/gradle/bin/gradle && -f ${APP_ARTIFACT} ]]; then
     echo publish.sh: Publishing from pre-built file ${APP_ARTIFACT}
@@ -28,4 +27,4 @@ else
     ./gradlew publish ${GRADLE_OPTIONS}
 fi
 
-echo publish.sh: Done
+echo publish.sh: Successfully published to ${MAVEN_URL}

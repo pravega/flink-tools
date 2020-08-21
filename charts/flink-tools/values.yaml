@@ -24,15 +24,13 @@ imageRef:
 localStorage:
   replicas: 2
   size: "5G"
+
 #mainClass: Name of main class. REQUIRED.
 
 volumes: [] 
 
-mavenCoordinate:
-  artifact: "flink-tools"
-  group: "io.pravega"
-  version: "0.2.0"
 parallelism: 1
+
 jobManager:
   cpu: "1000m"
   memory: "2048M"

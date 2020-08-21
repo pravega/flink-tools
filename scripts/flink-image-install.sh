@@ -7,5 +7,5 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/..
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
 kubectl apply -f ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml

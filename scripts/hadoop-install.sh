@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/..
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 : ${NAMESPACE?"You must export NAMESPACE"}
 helm repo add stable https://kubernetes-charts.storage.googleapis.com

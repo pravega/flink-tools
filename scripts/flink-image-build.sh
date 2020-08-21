@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/..
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
 IMAGE_TAG=claudiofahey/flink:1.10.0-2.12-1.1-W8-5-8494a1629-hadoop2.8.3
 mkdir -p ${ROOT_DIR}/flink-image/files/opt/flink/lib
 wget -O ${ROOT_DIR}/flink-image/files/opt/flink/lib/flink-shaded-hadoop-2-uber-2.8.3-10.0.jar \

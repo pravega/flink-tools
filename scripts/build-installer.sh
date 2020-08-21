@@ -8,6 +8,7 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
+source ${ROOT_DIR}/scripts/env.sh
 APP_NAME=flink-tools
 INSTALLER_BUILD_DIR=${ROOT_DIR}/build/installer/${APP_NAME}
 INSTALLER_TGZ=${ROOT_DIR}/build/installer/${APP_NAME}.tgz
@@ -17,7 +18,9 @@ rm -rf ${INSTALLER_BUILD_DIR} ${INSTALLER_TGZ}
 mkdir -p ${INSTALLER_BUILD_DIR}
 
 # Build Flink application JAR.
-${ROOT_DIR}/gradlew -p ${ROOT_DIR} shadowJar
+pushd ${ROOT_DIR}/
+./gradlew shadowJar ${GRADLE_OPTIONS}
+popd
 
 # Download and extract Gradle.
 GRADLE_VERSION=6.3
@@ -28,7 +31,7 @@ mv -v ${INSTALLER_BUILD_DIR}/gradle-${GRADLE_VERSION} ${INSTALLER_BUILD_DIR}/gra
 
 # Copy Flink application JAR.
 mkdir -p ${INSTALLER_BUILD_DIR}/flink-tools/build
-cp -v \
+cp -rv \
   ${ROOT_DIR}/flink-tools/build/libs \
   ${INSTALLER_BUILD_DIR}/flink-tools/build
 
@@ -46,9 +49,3 @@ cp -rv \
 
 # Create installer archive.
 tar -C ${INSTALLER_BUILD_DIR}/.. -czf ${INSTALLER_TGZ} ${APP_NAME}
-tar -tzvf ${INSTALLER_TGZ}
-
-# Copy to testing directory.
-#TEST_DIR=/tmp/dockertmp
-#mkdir -p ${TEST_DIR}
-#cp ${INSTALLER_TGZ} ${TEST_DIR}/

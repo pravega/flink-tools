@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-ROOT_DIR=$(dirname $0)/..
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
 pushd ${ROOT_DIR}
 docker run --rm -it -v ${PWD}:/work -v /tmp/dockertmp:/tmp/dockertmp ubuntu:18.04 bash
 popd
