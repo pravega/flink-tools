@@ -9,5 +9,4 @@
 set -ex
 apt-get update
 apt-get install -y \
-  openjdk-8-jdk \
-  wget
+  openjdk-8-jdk

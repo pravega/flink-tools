@@ -30,7 +30,7 @@ To learn more about Pravega, visit http://pravega.io
 
 - Java JDK 8.x.
   On Ubuntu, this can be installed with:
-  ```
+  ```shell script
   sudo apt-get install openjdk-8-jdk
   ```
 
@@ -125,7 +125,7 @@ If you would rather use a more automated deployment method, skip to the next sec
       
    Example file `scripts/env-local.sh`:
    ```shell script
-   export NAMESPACE=examples   
+   export NAMESPACE=examples
    ```
 
 3. Copy the sample values file from `values/samples/sample1-stream-to-aws-s3-job.yaml` or
@@ -145,7 +145,7 @@ If you would rather use a more automated deployment method, skip to the next sec
 6. To copy additional streams, repeat steps 3 to 5.
 
 7. To stop the job and delete all associated state:
-   ```
+   ```shell script
    helm del my-stream-to-file-job -n ${NAMESPACE}
    ```
 
@@ -375,6 +375,36 @@ If either of these parameters is empty, deduplication will be disabled, which is
 
 When deduplication is enabled, any errors when parsing the JSON or accessing the keys or counter
 will be logged and the event will be discarded.
+
+### Deploying to SDP using Helm without Internet access
+
+This procedure can be used to automate the deployment of the Flink jobs on a system without Internet access.
+The first section must be executed on a build host that has Internet access.
+This will download all dependencies and create a single archive that can be copied to an offline SDP system.
+This archive can then be used to script the deployment of the Flink jobs.
+
+1. On the build host, build the installation archive.
+   ```shell script
+   user@build-host:~/flink-tools$
+   scripts/build-installer.sh
+   ```
+   This will create the installation archive `build/installer/flink-tools.tgz`.
+   
+2. Copy the installation archive to the SDP system,
+   then extract it.
+   ```shell script
+   user@sdp-host:~/desdp$
+   tar -xzf flink-tools.tgz
+   cd flink-tools
+   ```
+   
+3. The only prerequisite on the SDP system is Java 8.x.
+   On Ubuntu, this can be installed with:
+   ```shell script
+   sudo apt-get install openjdk-8-jdk
+   ```
+   
+4.  Continue with the procedure in the section [Deploy to SDP using Helm](#deploy-to-sdp-using-helm).
 
 ## References
 
