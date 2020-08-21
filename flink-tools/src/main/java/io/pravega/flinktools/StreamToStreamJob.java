@@ -35,7 +35,7 @@ public class StreamToStreamJob extends AbstractJob {
      *
      * @param args Command line arguments
      */
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         AppConfiguration config = new AppConfiguration(args);
         log.info("config: {}", config);
         StreamToStreamJob job = new StreamToStreamJob(config);

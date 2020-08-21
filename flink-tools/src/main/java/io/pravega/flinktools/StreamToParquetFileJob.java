@@ -12,6 +12,7 @@ package io.pravega.flinktools;
 
 import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
+import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
@@ -40,7 +41,7 @@ public class StreamToParquetFileJob extends AbstractJob {
      *
      * @param args Command line arguments
      */
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         AppConfiguration config = new AppConfiguration(args);
         log.info("config: {}", config);
         StreamToParquetFileJob job = new StreamToParquetFileJob(config);
@@ -64,7 +65,7 @@ public class StreamToParquetFileJob extends AbstractJob {
                 throw new IllegalArgumentException("Required parameter avroSchema is missing");
             }
             final Schema schema = new Schema.Parser().parse(schemaString);
-            log.info("Avro schema: {}", schema);
+            log.info("Input Avro schema: {}", schema);
 
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
@@ -88,15 +89,33 @@ public class StreamToParquetFileJob extends AbstractJob {
                     .uid("JsonToGenericRecordMapFunction")
                     .name("JsonToGenericRecordMapFunction");
 
+            final DataStream<GenericRecord> filtered = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
+
+            // Flatten fields containing arrays.
+            final boolean flatten = getConfig().getParams().getBoolean("flatten", false);
+            log.info("Flatten records: {}", flatten);
+            final DataStream<GenericRecord> toOutput;
+            final Schema outputSchema;
+            if (flatten) {
+                final FlattenGenericRecordMapFunction transformer = new FlattenGenericRecordMapFunction(schema);
+                toOutput = filtered
+                        .flatMap(transformer)
+                        .uid("transformer")
+                        .name("transformer");
+                outputSchema = transformer.getOutputSchema();
+            } else {
+                toOutput = filtered;
+                outputSchema = schema;
+            }
+            log.info("Output Avro schema: {}", outputSchema);
+
             final boolean logOutput = getConfig().getParams().getBoolean("logOutputRecords", false);
             if (logOutput) {
-                events.print("output");
+                toOutput.print("output");
             }
 
-            final DataStream<GenericRecord> toOutput = GenericRecordFilters.dynamicFilter(events, getConfig().getParams());
-
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(schema))
+                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)

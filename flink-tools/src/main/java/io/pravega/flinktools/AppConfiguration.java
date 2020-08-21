@@ -20,7 +20,10 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +50,7 @@ public class AppConfiguration {
     private final String jobName;
     private final String avroSchema;
 
-    public AppConfiguration(String[] args) {
+    public AppConfiguration(String[] args) throws IOException {
         params = ParameterTool.fromArgs(args);
         log.info("Parameter Tool: {}", getParams().toMap());
         parallelism = getParams().getInt("parallelism", PARALLELISM_UNKNOWN);
@@ -60,10 +63,15 @@ public class AppConfiguration {
         maxOutOfOrdernessMs = getParams().getLong("maxOutOfOrdernessMs", 1000);
         jobName = getParams().get("jobName");
 
-        // Use base 64 for Avro schema to avoid complications with passing double quotes on the command line.
+        // Get Avro schema from base-64 encoded string parameter or from a file.
         final String avroSchemaBase64 = getParams().get("avroSchema", "");
         if (avroSchemaBase64.isEmpty()) {
-            avroSchema = null;
+            final String avroSchemaFileName = getParams().get("avroSchemaFile", "");
+            if (avroSchemaFileName.isEmpty()) {
+                avroSchema = "";
+            } else {
+                avroSchema = new String(Files.readAllBytes(Paths.get(avroSchemaFileName)), StandardCharsets.UTF_8);
+            }
         } else {
             avroSchema = new String(Base64.getDecoder().decode(avroSchemaBase64), StandardCharsets.UTF_8);
         }

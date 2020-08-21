@@ -181,6 +181,36 @@ sample1/2020-05-10--19/part-0-60
 sample1/2020-05-10--19/part-0-61
 ```
 
+### Flattening records
+
+When writing to Parquet files, the input JSON events can be optionally transformed
+using a flatten operation.
+
+When enabled, input JSON events in this format
+
+```json
+{
+"RemoteAddr":"gw3001",
+"Timestamp":[1597883617606,1597883617616,1597883617626],
+"X":[0.0,0.1,0.2],
+"Y":[0.0,-0.1,-0.2],
+"Z":[9.9,9.8,9.7]
+}
+```
+
+will be written with this structure.
+
+| RemoteAddr | Timestamp     | X   | Y    | Z   |
+| ---------- | ------------- | --- | ---- | --- |
+| gw3001     | 1597883617606 | 0.0 |  0.0 | 9.9 |
+| gw3001     | 1597883617616 | 0.1 | -0.1 | 9.8 |
+| gw3001     | 1597883617626 | 0.2 | -0.2 | 9.7 |
+
+All fields containing arrays must have the same number of elements.
+All non-array fields will be duplicated on each record.
+
+This flatten transformation can be enabled by setting the `flatten` parameter to `true`.
+
 ### Deploy to SDP
 
 Refer to the method described in the Stream-to-File section.
@@ -189,9 +219,17 @@ Use the script `scripts/jobs/stream-to-parquet-file-job.sh` and a values file si
 
 ### How to view Parquet files
 
-Use can use commands similar to the following to view the contents of a Parquet file.
+If the Parquet file is located on a standard Linux file system (including NFS),
+you can use a command similar to the following to view the content.
 
-```
+```shell script
+scripts/parquet-tools.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
+``` 
+
+If the Parquet file is located on an HDFS cluster in Kubernetes,
+you can use commands similar to the following to view the content.
+
+```shell script
 scripts/hadoop-bash.sh
 root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
 wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
