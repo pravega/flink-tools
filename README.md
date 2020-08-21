@@ -376,19 +376,33 @@ If either of these parameters is empty, deduplication will be disabled, which is
 When deduplication is enabled, any errors when parsing the JSON or accessing the keys or counter
 will be logged and the event will be discarded.
 
-### Deploying to SDP using Helm without Internet access
+## Deploying to SDP using Helm without Internet access
 
 This procedure can be used to automate the deployment of the Flink jobs on a system without Internet access.
-The first section must be executed on a build host that has Internet access.
-This will download all dependencies and create a single archive that can be copied to an offline SDP system.
-This archive can then be used to script the deployment of the Flink jobs.
 
-1. On the build host, build the installation archive.
+### Build the installation archive
+
+This must be executed on a build host that has Internet access.
+This will download all dependencies and create a single archive that can be copied to an offline SDP system.
+
+On the build host, build the installation archive.
+
+```shell script   
+user@build-host:~$
+git clone https://github.com/pravega/flink-tools
+cd flink-tools
+scripts/build-installer.sh
+```
+
+This will create the installation archive `build/installer/flink-tools.tgz`.
+
+### Deploy using the installation archive
+   
+1. The only prerequisite on the SDP system is Java 8.x.
+   On Ubuntu, this can be installed with:
    ```shell script
-   user@build-host:~/flink-tools$
-   scripts/build-installer.sh
+   sudo apt-get install openjdk-8-jdk
    ```
-   This will create the installation archive `build/installer/flink-tools.tgz`.
    
 2. Copy the installation archive to the SDP system,
    then extract it.
@@ -398,13 +412,7 @@ This archive can then be used to script the deployment of the Flink jobs.
    cd flink-tools
    ```
    
-3. The only prerequisite on the SDP system is Java 8.x.
-   On Ubuntu, this can be installed with:
-   ```shell script
-   sudo apt-get install openjdk-8-jdk
-   ```
-   
-4.  Continue with the procedure in the section [Deploy to SDP using Helm](#deploy-to-sdp-using-helm).
+3.  Continue with the procedure in the section [Deploy to SDP using Helm](#deploy-to-sdp-using-helm).
 
 ## References
 
