@@ -6,6 +6,9 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
+
+# Build the installer archive, including the Java JAR file and all dependencies.
+
 set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
@@ -23,6 +26,7 @@ pushd ${ROOT_DIR}/
 popd
 
 # Download and extract Gradle.
+# Gradle will be included in the installer archive.
 GRADLE_VERSION=6.3
 GRADLE_FILE=${ROOT_DIR}/build/installer/gradle-${GRADLE_VERSION}-bin.zip
 [ -f ${GRADLE_FILE} ] || wget -O ${GRADLE_FILE} https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip

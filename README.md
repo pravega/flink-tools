@@ -385,16 +385,16 @@ This procedure can be used to automate the deployment of the Flink jobs on a sys
 This must be executed on a build host that has Internet access.
 This will download all dependencies and create a single archive that can be copied to an offline SDP system.
 
-On the build host, build the installation archive.
+1. On the build host, build the installation archive.
 
-```shell script   
-user@build-host:~$
-git clone https://github.com/pravega/flink-tools
-cd flink-tools
-scripts/build-installer.sh
-```
+   ```shell script   
+   user@build-host:~$
+   git clone https://github.com/pravega/flink-tools
+   cd flink-tools
+   scripts/build-installer.sh
+   ```
 
-This will create the installation archive `build/installer/flink-tools.tgz`.
+   This will create the installation archive `build/installer/flink-tools.tgz`.
 
 ### Deploy using the installation archive
    
