@@ -14,7 +14,12 @@ ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 
 # If not specified, get Maven repo parameters using kubectl.
-export MAVEN_URL="${MAVEN_URL:-http://$(kubectl get ing -n ${NAMESPACE?"You must export NAMESPACE"} repo -o jsonpath='{.spec.rules[0].host}')/maven2}"
+if [[ $(kubectl get ing -n edge repo -o jsonpath="{.spec.tls}") == "" ]]; then
+    export MAVEN_PROTOCOL=http
+else
+    export MAVEN_PROTOCOL=https
+fi
+export MAVEN_URL="${MAVEN_URL:-${MAVEN_PROTOCOL}://$(kubectl get ing -n ${NAMESPACE?"You must export NAMESPACE"} repo -o jsonpath='{.spec.rules[0].host}')/maven2}"
 export MAVEN_USERNAME="${MAVEN_USERNAME:-desdp}"
 export MAVEN_PASSWORD="${MAVEN_PASSWORD:-$(kubectl get secret keycloak-${MAVEN_USERNAME} -n nautilus-system -o jsonpath='{.data.password}' | base64 -d)}"
 

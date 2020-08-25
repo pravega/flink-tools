@@ -10,6 +10,7 @@
 .nfs*
 build/
 data/
+flink-image/files
 logs/
 out/
 values/local/
