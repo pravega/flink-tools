@@ -11,3 +11,7 @@ export ENV_LOCAL_SCRIPT=$(dirname $0)/env-local.sh
 if [[ -f ${ENV_LOCAL_SCRIPT} ]]; then
     source ${ENV_LOCAL_SCRIPT}
 fi
+export APP_GROUP_ID=${APP_GROUP_ID:-io.pravega}
+export APP_ARTIFACT_ID=${APP_ARTIFACT_ID:-flink-tools}
+export APP_VERSION=${APP_VERSION:-0.2.0}
+export GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"

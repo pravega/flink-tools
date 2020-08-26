@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 set -ex
-: ${1?"You must specify the values.yaml file."}
-ROOT_DIR=$(readlink -f $(dirname $0)/../..)
-${ROOT_DIR}/scripts/start-job.sh $* \
-    -f ${ROOT_DIR}/values/job-defaults/stream-to-stream-job.yaml
+ROOT_DIR=$(readlink -f $(dirname $0)/..)
+pushd ${ROOT_DIR}
+docker run --rm -it -v ${PWD}:/work -v /tmp/dockertmp:/tmp/dockertmp ubuntu:18.04 bash
+popd

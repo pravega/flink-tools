@@ -10,6 +10,6 @@
 # It will be used to include the Hadoop libraries.
 
 # Replace FROM line with your own Docker repository.
-FROM devops-repo.isus.emc.com:8116/nautilus/flink:1.10.0-2.12-1.1-W8-5-8494a1629
+FROM devops-repo.isus.emc.com:8116/nautilus/flink:1.10.0-2.12-1.2-W2-4-0577915d2
 
 COPY files/ /
