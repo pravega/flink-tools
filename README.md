@@ -387,14 +387,14 @@ This will download all dependencies and create a single archive that can be copi
 
 1. On the build host, build the installation archive.
 
-   ```shell script   
+   ```shell script
    user@build-host:~$
    git clone https://github.com/pravega/flink-tools
    cd flink-tools
    scripts/build-installer.sh
    ```
 
-   This will create the installation archive `build/installer/flink-tools.tgz`.
+   This will create the installation archive `build/installer/flink-tools-${APP_VERSION}.tgz`.
 
 ### Deploy using the installation archive
    
@@ -404,11 +404,10 @@ This will download all dependencies and create a single archive that can be copi
    sudo apt-get install openjdk-8-jdk
    ```
    
-2. Copy the installation archive to the SDP system,
-   then extract it.
+2. Copy the installation archive to the SDP system, then extract it.
    ```shell script
    user@sdp-host:~/desdp$
-   tar -xzf flink-tools.tgz
+   tar -xzf flink-tools-*.tgz
    cd flink-tools
    ```
    

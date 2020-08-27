@@ -14,7 +14,7 @@ ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 APP_NAME=flink-tools
 INSTALLER_BUILD_DIR=${ROOT_DIR}/build/installer/${APP_NAME}
-INSTALLER_TGZ=${ROOT_DIR}/build/installer/${APP_NAME}.tgz
+INSTALLER_TGZ=${ROOT_DIR}/build/installer/${APP_NAME}-${APP_VERSION}.tgz
 
 # Delete output directories and files.
 rm -rf ${INSTALLER_BUILD_DIR} ${INSTALLER_TGZ}
@@ -53,3 +53,5 @@ cp -rv \
 
 # Create installer archive.
 tar -C ${INSTALLER_BUILD_DIR}/.. -czf ${INSTALLER_TGZ} ${APP_NAME}
+
+ls -lh ${INSTALLER_TGZ}
