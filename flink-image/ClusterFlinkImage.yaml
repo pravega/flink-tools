@@ -13,6 +13,6 @@ spec:
   apiversion: v1
   deployerVersion: v2
   docker:
-    image: claudiofahey/flink:1.10.0-2.12-1.2-W2-4-0577915d2-hadoop2.8.3
+    image: IMAGE_REF
     pullPolicy: Always
   flinkVersion: 1.10.0
