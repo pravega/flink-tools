@@ -9,7 +9,7 @@
 # This will create a Flink image with extra files.
 # It will be used to include the Hadoop libraries.
 
-# Replace FROM line with your own Docker repository.
-FROM devops-repo.isus.emc.com:8116/nautilus/flink:1.10.0-2.12-1.2-W2-4-0577915d2
-
+ARG FLINK_IMAGE_REPO
+ARG FLINK_IMAGE_TAG
+FROM ${FLINK_IMAGE_REPO}:${FLINK_IMAGE_TAG}
 COPY files/ /
