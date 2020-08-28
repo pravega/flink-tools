@@ -7,12 +7,13 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 
 # Load environment variables from env-local.sh if it exists.
-export ENV_LOCAL_SCRIPT=$(dirname $0)/env-local.sh
+ENV_LOCAL_SCRIPT=$(dirname $0)/env-local.sh
 if [[ -f ${ENV_LOCAL_SCRIPT} ]]; then
     source ${ENV_LOCAL_SCRIPT}
 fi
-export APP_GROUP_ID=${APP_GROUP_ID:-io.pravega}
-export APP_ARTIFACT_ID=${APP_ARTIFACT_ID:-flink-tools}
-export APP_VERSION=${APP_VERSION:-0.2.0}
-export GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"
-export FLINK_IMAGE_TAG="1.10.0-2.12-1.2-W2-4-0577915d2"
+APP_NAME=flink-tools
+APP_GROUP_ID=${APP_GROUP_ID:-io.pravega}
+APP_ARTIFACT_ID=${APP_ARTIFACT_ID:-flink-tools}
+APP_VERSION=${APP_VERSION:-0.2.1}
+GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"
+FLINK_IMAGE_TAG="1.10.0-2.12-1.2-W2-4-0577915d2"
