@@ -6,10 +6,9 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
-# Set the docker registry with desa installe
+# Set the docker registry with desa install
 echo sdp install script $SDP_INSTALL_SCRIPT
 $SDP_INSTALL_SCRIPT config set registry ${DOCKER_REGISTRY}
 
@@ -21,6 +20,6 @@ then
     echo $DOCKER_IMAGE_TAR failed to push to ${DOCKER_REGISTRY}
 else
     echo $DOCKER_IMAGE_TAR  push success!
-    cat ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml | sed "s,IMAGE_REF,$DOCKER_REGISTRY:$NEW_IMAGE_TAG,g" | kubectl apply -f -
+    cat ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml | sed "s,\${IMAGE_REF},$DOCKER_REGISTRY:$NEW_IMAGE_TAG,g" | kubectl apply -f -
 fi
 

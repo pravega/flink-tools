@@ -13,6 +13,6 @@ spec:
   apiversion: v1
   deployerVersion: v2
   docker:
-    image: IMAGE_REF
+    image: ${IMAGE_REF}
     pullPolicy: Always
   flinkVersion: 1.10.0
