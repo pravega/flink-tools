@@ -23,4 +23,4 @@ DOCKER_IMAGE_TAR=${ROOT_DIR}/build/flink-${NEW_IMAGE_TAG}.tar
 SDP_INSTALL_PATH=$HOME/desdp/
 SDP_INSTALL_SCRIPT=$HOME/desdp/decks-install-linux-amd64
 CERTS_PATH=$HOME/certs
-DOCKER_REGISTRY=$($HOME/nautilus-install/decks-install-linux-amd64 config list | grep registry |  awk '{ print $2 }')
+DOCKER_REGISTRY=$($HOME/desdp/decks-install-linux-amd64 config list | grep registry |  awk '{ print $2 }')
