@@ -23,7 +23,7 @@ shift
 export RELEASE_NAME=$(basename "${VALUES_FILE}" .yaml)
 
 if [[ "${UNINSTALL}" == "1" ]]; then
-    helm del -n ${NAMESPACE} ${RELEASE_NAME} $@ || true
+    helm del -n ${NAMESPACE} ${RELEASE_NAME} || true
 fi
 
 if [[ "${PUBLISH}" != "0" ]]; then
