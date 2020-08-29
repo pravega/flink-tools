@@ -15,7 +15,7 @@ $SDP_INSTALL_SCRIPT config set registry ${DOCKER_REGISTRY}
 # Push Image to docker registry with desa installer
 $SDP_INSTALL_SCRIPT push --input $DOCKER_IMAGE_TAR  --ca-certs-dir $CERTS_PATH
 
-if [ $? -ne 0 ]
+if [[ $? -ne 0 ]]
 then
     echo $DOCKER_IMAGE_TAR failed to push to ${DOCKER_REGISTRY}
 else
