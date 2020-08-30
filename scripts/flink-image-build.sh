@@ -14,7 +14,6 @@ set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 FLINK_IMAGE_REPO="${FLINK_IMAGE_REPO:-devops-repo.isus.emc.com:8116/nautilus/flink}"
-NEW_IMAGE_TAG="${FLINK_IMAGE_TAG}-hadoop2.8.3"
 mkdir -p ${ROOT_DIR}/flink-image/files/opt/flink/lib
 HADOOP_JAR=${ROOT_DIR}/flink-image/files/opt/flink/lib/flink-shaded-hadoop-2-uber-2.8.3-10.0.jar
 [ -f ${HADOOP_JAR} ] || wget -O ${HADOOP_JAR} \
@@ -24,6 +23,5 @@ docker build \
     --build-arg "FLINK_IMAGE_REPO=${FLINK_IMAGE_REPO}" \
     --build-arg "FLINK_IMAGE_TAG=${FLINK_IMAGE_TAG}" \
     ${ROOT_DIR}/flink-image
-DOCKER_IMAGE_TAR=${ROOT_DIR}/build/flink-${NEW_IMAGE_TAG}.tar
 docker save ${FLINK_IMAGE_REPO}:${NEW_IMAGE_TAG} > ${DOCKER_IMAGE_TAR}
 ls -lh ${DOCKER_IMAGE_TAR}
