@@ -33,15 +33,14 @@ unzip -q -d ${INSTALLER_BUILD_DIR} ${GRADLE_FILE}
 mv -v ${INSTALLER_BUILD_DIR}/gradle-${GRADLE_VERSION} ${INSTALLER_BUILD_DIR}/gradle
 
 # Copy Flink application JAR.
-mkdir -p ${INSTALLER_BUILD_DIR}/flink-tools/build
-cp -rv \
-  ${ROOT_DIR}/flink-tools/build/libs \
-  ${INSTALLER_BUILD_DIR}/flink-tools/build
+mkdir -p ${INSTALLER_BUILD_DIR}/flink-tools/build/libs
+cp -v \
+  ${ROOT_DIR}/flink-tools/build/libs/pravega-flink-tools-${APP_VERSION}.jar \
+  ${INSTALLER_BUILD_DIR}/flink-tools/build/libs/
 
 # Copy other files required for an offline install.
 cp -rv \
   ${ROOT_DIR}/charts \
-  ${ROOT_DIR}/flink-image \
   ${ROOT_DIR}/installer \
   ${ROOT_DIR}/scripts \
   ${ROOT_DIR}/test \
@@ -49,6 +48,11 @@ cp -rv \
   ${ROOT_DIR}/LICENSE \
   ${ROOT_DIR}/README.md \
   ${INSTALLER_BUILD_DIR}/
+
+mkdir -p ${INSTALLER_BUILD_DIR}/flink-image
+cp -v \
+  ${ROOT_DIR}/flink-image/*.yaml \
+  ${INSTALLER_BUILD_DIR}/flink-image/
 
 # Create installer archive.
 GZIP="--rsyncable" tar -C ${INSTALLER_BUILD_DIR}/.. -czf ${INSTALLER_TGZ} ${APP_NAME}
