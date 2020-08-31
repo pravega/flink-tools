@@ -6,20 +6,15 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
+
+set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
-# Set the docker registry with desa install
-echo sdp install script $SDP_INSTALL_SCRIPT
-$SDP_INSTALL_SCRIPT config set registry ${DOCKER_REGISTRY}
-
-# Push Image to docker registry with desa installer
-$SDP_INSTALL_SCRIPT push --input $DOCKER_IMAGE_TAR  --ca-certs-dir $CERTS_PATH
-
-if [[ $? -ne 0 ]]
-then
-    echo $DOCKER_IMAGE_TAR failed to push to ${DOCKER_REGISTRY}
-else
-    echo $DOCKER_IMAGE_TAR  push success!
-    cat ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml | sed "s,\${IMAGE_REF},$DOCKER_REGISTRY:$NEW_IMAGE_TAG,g" | kubectl apply -f -
-fi
-
+DOCKER_IMAGE_TAR=${SDP_INSTALL_PATH}/${DOCKER_IMAGE_TAR}
+[ -f "${DOCKER_IMAGE_TAR}" ] || { echo "File ${DOCKER_IMAGE_TAR} not found" ; exit 1 ;}
+[ -f "${SDP_INSTALL_SCRIPT}" ] || { echo "File ${SDP_INSTALL_SCRIPT} not found" ; exit 1 ;}
+[ -d "${CERTS_PATH}" ] || { echo "Directory ${CERTS_PATH} not found" ; exit 1 ;}
+# Push image to Docker registry with decks-installer.
+${SDP_INSTALL_SCRIPT} push --input ${DOCKER_IMAGE_TAR}  --ca-certs-dir ${CERTS_PATH}
+cat ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml | sed "s,\${IMAGE_REF},${DOCKER_REGISTRY}/flink:${NEW_IMAGE_TAG},g" | kubectl apply -f -
+echo Flink image loaded from ${DOCKER_IMAGE_TAR}.

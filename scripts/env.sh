@@ -19,8 +19,8 @@ APP_VERSION=${APP_VERSION:-0.2.1}
 GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"
 FLINK_IMAGE_TAG="1.10.0-2.12-1.2-W2-4-0577915d2"
 NEW_IMAGE_TAG="${FLINK_IMAGE_TAG}-hadoop2.8.3"
-DOCKER_IMAGE_TAR=${ROOT_DIR}/build/flink-${NEW_IMAGE_TAG}.tar
-SDP_INSTALL_PATH=$HOME/desdp/
-SDP_INSTALL_SCRIPT=$HOME/desdp/decks-install-linux-amd64
-CERTS_PATH=$HOME/certs
-DOCKER_REGISTRY=$($HOME/desdp/decks-install-linux-amd64 config list | grep registry |  awk '{ print $2 }')
+DOCKER_IMAGE_TAR=flink-${NEW_IMAGE_TAG}.tar
+SDP_INSTALL_PATH=${HOME}/desdp
+SDP_INSTALL_SCRIPT=${SDP_INSTALL_PATH}/decks-install-linux-amd64
+CERTS_PATH=${SDP_INSTALL_PATH}/certs
+DOCKER_REGISTRY=$(${SDP_INSTALL_SCRIPT} config list | grep registry |  awk '{ print $2 }')
