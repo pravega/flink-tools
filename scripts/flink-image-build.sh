@@ -15,6 +15,7 @@ ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 DOCKER_IMAGE_TAR=${ROOT_DIR}/build/${DOCKER_IMAGE_TAR}
 FLINK_IMAGE_REPO="${FLINK_IMAGE_REPO:-devops-repo.isus.emc.com:8116/nautilus/flink}"
+mkdir -p ${ROOT_DIR}/build
 mkdir -p ${ROOT_DIR}/flink-image/files/opt/flink/lib
 HADOOP_JAR=${ROOT_DIR}/flink-image/files/opt/flink/lib/flink-shaded-hadoop-2-uber-2.8.3-10.0.jar
 [ -f ${HADOOP_JAR} ] || wget -O ${HADOOP_JAR} \
