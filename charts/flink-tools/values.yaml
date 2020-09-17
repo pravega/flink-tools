@@ -9,7 +9,7 @@ appParameters:
   enableOperatorChaining: "false"
 
 # These parameters are converted to JSON and then base-64 encoded.
-appParametersJson: []
+appParametersJson: {}
 
 # For Flink 1.9, SDP 1.0
 #flinkVersion: "1.9.0"
