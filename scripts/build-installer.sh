@@ -49,6 +49,8 @@ cp -rv \
   ${ROOT_DIR}/README.md \
   ${INSTALLER_BUILD_DIR}/
 
+rm -f -v ${INSTALLER_BUILD_DIR}/scripts/*-local.sh
+
 mkdir -p ${INSTALLER_BUILD_DIR}/flink-image
 cp -v \
   ${ROOT_DIR}/flink-image/*.yaml \
