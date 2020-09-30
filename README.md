@@ -413,6 +413,18 @@ This will download all dependencies and create a single archive that can be copi
    
 3.  Continue with the procedure in the section [Deploy to SDP using Helm](#deploy-to-sdp-using-helm).
 
+## Release Procedure
+
+1. Increment APP_VERSION in `scripts/env.sh`.
+
+2. Run the following commands. 
+   ```shell script
+   source scripts/env.sh
+   git commit
+   git tag v${APP_VERSION}
+   git push --tags
+   ````
+
 ## References
 
 - [Steaming File Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)
