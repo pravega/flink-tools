@@ -28,7 +28,7 @@ popd
 # Gradle will be included in the installer archive.
 GRADLE_VERSION=6.3
 GRADLE_FILE=${ROOT_DIR}/build/installer/gradle-${GRADLE_VERSION}-bin.zip
-[ -f ${GRADLE_FILE} ] || wget -O ${GRADLE_FILE} https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+[ -f ${GRADLE_FILE} ] || wget --no-verbose -O ${GRADLE_FILE} https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 unzip -q -d ${INSTALLER_BUILD_DIR} ${GRADLE_FILE}
 mv -v ${INSTALLER_BUILD_DIR}/gradle-${GRADLE_VERSION} ${INSTALLER_BUILD_DIR}/gradle
 

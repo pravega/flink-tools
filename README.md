@@ -413,7 +413,9 @@ This will download all dependencies and create a single archive that can be copi
    
 3.  Continue with the procedure in the section [Deploy to SDP using Helm](#deploy-to-sdp-using-helm).
 
-## Release Procedure
+## Github Release Procedure
+
+Follow these steps to release a new version of Flink Tools to Github Releases.
 
 1. Increment APP_VERSION in `scripts/env.sh`.
 
@@ -424,6 +426,12 @@ This will download all dependencies and create a single archive that can be copi
    git tag v${APP_VERSION}
    git push --tags
    ````
+   
+3. Monitor Travis CI at 
+   https://travis-ci.com/github/pravega/flink-tools.
+
+4. When complete, the installation archive will be available at
+   https://github.com/pravega/flink-tools/releases.
 
 ## References
 
