@@ -20,3 +20,11 @@ jobs:
   include:
     - stage: build
       script: scripts/build-installer.sh
+
+deploy:
+  provider: releases
+  token: $GITHUB_TOKEN
+  file: build/installer/flink-tools-*.tgz
+  edge: true # opt in to dpl v2
+  on:
+    tags: true
