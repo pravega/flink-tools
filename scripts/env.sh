@@ -21,6 +21,8 @@ FLINK_IMAGE_TAG="1.10.0-2.12-1.2-W2-4-0577915d2"
 NEW_IMAGE_TAG="${FLINK_IMAGE_TAG}-hadoop2.8.3"
 DOCKER_IMAGE_TAR=flink-${NEW_IMAGE_TAG}.tar
 SDP_INSTALL_PATH=${HOME}/desdp
-SDP_INSTALL_SCRIPT=${SDP_INSTALL_PATH}/decks-install-linux-amd64
+SDP_INSTALL_EXECUTABLE=${SDP_INSTALL_PATH}/decks-install-linux-amd64
 CERTS_PATH=${SDP_INSTALL_PATH}/certs
-DOCKER_REGISTRY=$(${SDP_INSTALL_SCRIPT} config list | grep registry |  awk '{ print $2 }')
+if [[ -f ${SDP_INSTALL_EXECUTABLE} ]]; then
+    DOCKER_REGISTRY=$(${SDP_INSTALL_EXECUTABLE} config list | grep registry |  awk '{ print $2 }')
+fi
