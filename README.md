@@ -320,6 +320,9 @@ Below shows how to deploy this Flink job using the SDP UI.
 
 3. Create Flink Cluster.
    - Name: sample-data-generator-job
+   - Label:
+     - key: name
+     - value: sample-data-generator-job
    - Flink Image: 1.10.0-2.12 (1.10.0)
    - Replicas: 1
    - Task Slots: 1
