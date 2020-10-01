@@ -24,6 +24,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +116,7 @@ public class StreamToParquetFileJob extends AbstractJob {
             }
 
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema))
+                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema).withCompressionCodec(CompressionCodecName.SNAPPY))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)

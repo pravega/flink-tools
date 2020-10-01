@@ -11,3 +11,4 @@
 rootProject.name = "flink-tools"
 
 include "flink-tools"
+include "flink-parquet"
