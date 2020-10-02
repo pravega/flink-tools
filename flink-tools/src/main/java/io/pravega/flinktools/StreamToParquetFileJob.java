@@ -115,6 +115,8 @@ public class StreamToParquetFileJob extends AbstractJob {
                 toOutput.print("output");
             }
 
+            // You need to overwrite the flink-parquet as a shadowJar along with withCompressionCodec method calling
+            // when plan to use CompressionCodecName other than UNCOMPRESSED
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
                     .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema).withCompressionCodec(CompressionCodecName.SNAPPY))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())

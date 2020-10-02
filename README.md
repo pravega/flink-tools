@@ -181,6 +181,10 @@ sample1/2020-05-10--19/part-0-60
 sample1/2020-05-10--19/part-0-61
 ```
 
+When you plan to output compressed parquet files, you need to pull `flink-parquet` folder from this repo to your work 
+directory and overwrite as a shadowJar, since the default `flink-parquet` from Flink does not support the compressed 
+file format. Notice this `flink-parquet` has been tested for the Flink Version under `1.10.1`.
+
 ### Flattening records
 
 When writing to Parquet files, the input JSON events can be optionally transformed
