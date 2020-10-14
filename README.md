@@ -169,7 +169,7 @@ Input events must be in JSON format.
 To ensure that JSON events can be reliable converted to Parquet, you must specify the
 [Apache Avro schema](http://avro.apache.org/docs/1.8.2/spec.html) that corresponds to the JSON events.
 
-By default, it writes a new file every 1 minute. 
+By default, it will compress the data in Snappy format and write a new file every 1 minute. 
 Files are written using the following directory structure.
 ```
 sample1/2020-05-10--18/part-0-0
