@@ -77,7 +77,8 @@ dependencies {
     compile "org.slf4j:slf4j-api:${slf4jApiVersion}"
     compile "ch.qos.logback:logback-classic:${logbackVersion}"
     compile "ch.qos.logback:logback-core:${logbackVersion}"
-    
+    compile "org.scala-lang:scala-compiler:${scalaCompilerVersion}"
+
     testCompile "org.apache.flink:flink-test-utils_${flinkScalaVersion}:${flinkVersion}"
     testCompile "junit:junit:${junitVersion}"
 }
