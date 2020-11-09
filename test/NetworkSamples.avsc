@@ -1,0 +1,12 @@
+{
+  "namespace": "io.pravega.flinktools.util",
+  "type": "record",
+  "name": "NetworkSamples",
+  "fields": [
+    {"name": "RemoteAddr", "type": "string"},
+    {"name": "Interface", "type": "string"},
+    {"name": "TimestampNanos", "type": {"type": "array", "items": "long"}},
+    {"name": "RxBytes", "type": {"type": "array", "items": "long"}},
+    {"name": "TxBytes", "type": {"type": "array", "items": "long"}}
+  ]
+}
