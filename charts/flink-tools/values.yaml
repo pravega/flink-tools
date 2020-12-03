@@ -37,11 +37,15 @@ jobManager:
   replicas: 1
 
 taskManager:
-  replicas: 1
-  heap: "3221225472"      # 3Gi
-  memory: "4294967296"    # 4Gi
-  cpu: "1000m"
   numberOfTaskSlots: 1
+  replicas: 1
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
 
 clusterConfiguration:
   restart-strategy.fixed-delay.delay: "30 s"
