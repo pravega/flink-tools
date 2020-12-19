@@ -91,7 +91,7 @@ If you would rather use a more automated deployment method, skip to the next sec
 
 3. Create Flink Cluster.
    - Name: stream-to-file
-   - Flink Image: 1.10.0-2.12-hadoop2.8.3 (1.10.0)
+   - Flink Image: 1.10.2-2.12-hadoop2.8.3 (1.10.2-2.12)
    - Replicas: 1
    - Task Slots: 1
    
@@ -101,7 +101,7 @@ If you would rather use a more automated deployment method, skip to the next sec
    - Main Class: io.pravega.flinktools.StreamToFileJob
    - Cluster Selectors: name: stream-to-file
    - Parallelism: 1
-   - Flink Version: 1.10.0
+   - Flink Version: 1.10.2-2.12
    - Add Parameters:
      - output: hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1
      - scope: examples (This should match your SDP project name.)
@@ -323,7 +323,7 @@ Below shows how to deploy this Flink job using the SDP UI.
    - Label:
      - key: name
      - value: sample-data-generator-job
-   - Flink Image: 1.10.0-2.12 (1.10.0)
+   - Flink Image: 1.10.2-2.12 (1.10.2-2.12)
    - Replicas: 1
    - Task Slots: 1
    
@@ -333,7 +333,7 @@ Below shows how to deploy this Flink job using the SDP UI.
    - Main Class: io.pravega.flinktools.SampleDataGeneratorJob
    - Cluster Selectors: name: sample-data-generator-job
    - Parallelism: 1
-   - Flink Version: 1.10.0
+   - Flink Version: 1.10.2-2.12
    - Add Parameters:
      - scope: examples (This should match your SDP project name.)
    - Add Stream:

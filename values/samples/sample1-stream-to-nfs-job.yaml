@@ -15,7 +15,7 @@ appParameters:
   output: "/mnt/nfs"
   #parallelism: "1"
 imageRef:
-  name: "1.10.0-2.12-hadoop2.8.3"
+  name: "1.10.2-2.12-hadoop2.8.3"
 clusterConfiguration:
   taskmanager.memory.jvm-metaspace.size: "536870912"  # 512 MiB
 jobManager:

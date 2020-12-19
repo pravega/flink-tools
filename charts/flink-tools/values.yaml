@@ -11,15 +11,9 @@ appParameters:
 # These parameters are converted to JSON and then base-64 encoded.
 appParametersJson: {}
 
-# For Flink 1.9, SDP 1.0
-#flinkVersion: "1.9.0"
-#imageRef:
-#  name: "1.9.0"
-
-# For Flink 1.10, SDP 1.1
-flinkVersion: "1.10.0"
+flinkVersion: "1.10.2"
 imageRef:
-  name: "1.10.0-2.12"
+  name: "1.10.2-2.12"
 
 localStorage:
   replicas: 2
