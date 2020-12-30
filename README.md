@@ -42,6 +42,27 @@ To learn more about Pravega, visit http://pravega.io
   including open-source, although the exact
   deployment methods depend on your environment and are not documented here.
 
+## Stream-to-Console: Continuously show the contents of a Pravega stream in a human-readable log file
+
+### Overview
+
+This Flink job will continuously print the events in a Pravega stream.
+Events must consist of UTF-8 strings, such as JSON or CSV.
+
+### Run Locally with Gradle
+
+Use the command below to run the Flink job directly with Gradle.
+All job parameters must be specified within the Gradle `--args` argument.
+
+```shell script
+./gradlew -PmainClass=io.pravega.flinktools.StreamToConsoleJob \
+flink-tools:run \
+--args="\
+--input-stream examples/sample1 \
+--input-startAtTail true \
+"
+```
+
 ## Stream-to-File: Continuously copying a Pravega stream to text files
 
 ### Overview

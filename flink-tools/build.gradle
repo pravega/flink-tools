@@ -20,10 +20,13 @@ apply plugin: "com.github.johnrengelman.shadow"
 group = "io.pravega"
 archivesBaseName = "pravega-flink-tools"
 description = "Pravega Flink Tools"
-// The default main class.
-mainClassName =  "io.pravega.flinktools.Main"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+// Allow main class name to be specified with -PmainClass=xxx.
+application {
+    mainClassName = project.hasProperty("mainClass") ? getProperty("mainClass") : "io.pravega.flinktools.Main"
+}
 
 // NOTE: We cannot use "compileOnly" or "shadow" configurations since then we could not run code
 // in the IDE or with "gradle run". We also cannot exclude transitive dependencies from the
