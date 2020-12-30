@@ -11,15 +11,9 @@ appParameters:
 # These parameters are converted to JSON and then base-64 encoded.
 appParametersJson: {}
 
-# For Flink 1.9, SDP 1.0
-#flinkVersion: "1.9.0"
-#imageRef:
-#  name: "1.9.0"
-
-# For Flink 1.10, SDP 1.1
-flinkVersion: "1.10.0"
+flinkVersion: "1.10.2"
 imageRef:
-  name: "1.10.0-2.12"
+  name: "1.10.2-2.12"
 
 localStorage:
   replicas: 2
@@ -37,13 +31,18 @@ jobManager:
   replicas: 1
 
 taskManager:
-  replicas: 1
-  heap: "3221225472"      # 3Gi
-  memory: "4294967296"    # 4Gi
-  cpu: "1000m"
   numberOfTaskSlots: 1
+  replicas: 1
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
 
 clusterConfiguration:
+  restart-strategy: "fixed-delay"
   restart-strategy.fixed-delay.delay: "30 s"
   taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
   taskmanager.memory.task.off-heap.size: "0"

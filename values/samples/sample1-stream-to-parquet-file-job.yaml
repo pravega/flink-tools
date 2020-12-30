@@ -10,9 +10,9 @@ appParameters:
   checkpointIntervalMs: "10000"
   checkpointTimeoutMs: "3600000"  # 1 hr
   input-stream: "sample1"
-  #input-startAtTail: "false"
+  input-startAtTail: "false"
   #input-startStreamCut: "UNBOUNDED"
-  output: "hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet"
+  output: "/mnt/flink/sample1-parquet-compressed"
   #parallelism: "1"
   # Key for deduplication
   keyFieldNames: "sensorId"

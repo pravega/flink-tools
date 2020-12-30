@@ -15,27 +15,17 @@ appParameters:
   output: "/mnt/nfs"
   #parallelism: "1"
 imageRef:
-  name: "1.10.0-2.12-hadoop2.8.3"
+  name: "1.10.2-2.12-hadoop2.8.3"
 clusterConfiguration:
   taskmanager.memory.jvm-metaspace.size: "536870912"  # 512 MiB
-
 jobManager:
-  cpu: "250m"
-  memory: "1024M"
-  replicas: 1
   volumeMounts:
     - mountPath: /mnt/nfs
       name: extra-volume
 taskManager:
-  replicas: 1
-  heap: "3221225472"      # 3Gi
-  memory: "4294967296"    # 4Gi
-  cpu: "360m"
-  numberOfTaskSlots: 1
   volumeMounts:
     - mountPath: /mnt/nfs
       name: extra-volume
-
 volumes:
   - name: extra-volume
     persistentVolumeClaim:
