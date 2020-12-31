@@ -23,6 +23,9 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.descriptors.ConnectTableDescriptor;
+import org.apache.flink.table.descriptors.Csv;
+import org.apache.flink.table.descriptors.FileSystem;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,11 +121,21 @@ public class StreamToCsvFileJob extends AbstractJob {
             final DataStream<Row> rows = flattened.map(mapper, mapper.getTypeInformation());
             rows.printToErr();
 
-            StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+            final StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
             tableEnv.createTemporaryView("mystream", rows);
-            Table table = tableEnv.sqlQuery("select * from mystream");
+            final Table table = tableEnv.sqlQuery("select * from mystream");
             table.printSchema();
 
+            tableEnv.connect(
+                    new FileSystem()
+                            .path("file:///tmp/csv2")
+            )
+                    .inAppendMode()
+                    .withFormat(new Csv())
+                    .withSchema(new org.apache.flink.table.descriptors.Schema()
+                            .schema(table.getSchema()))
+                    .createTemporaryTable("csvTable");
+            tableEnv.from("mystream").insertInto("csvTable");
 
             log.info("Executing {} job", jobName);
             env.execute(jobName);
