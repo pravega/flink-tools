@@ -29,10 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Copy a Pravega stream to a set of files on any Flink file system, including S3.
+ * Copy a Pravega stream to a set of Parquet files on any Flink file system, including S3.
  * This uses Flink to provide exactly-once, recovery from failures, and parallelism.
- * The stream is assumed to contain UTF-8 strings.
- * When written to files, each event will be followed by a new line.
+ * Input events must be in JSON format.
+ * You must specify the Apache Avro schema (http://avro.apache.org/docs/1.8.2/spec.html)
+ * that corresponds to the JSON events.
  */
 public class StreamToParquetFileJob extends AbstractJob {
     final private static Logger log = LoggerFactory.getLogger(StreamToParquetFileJob.class);
