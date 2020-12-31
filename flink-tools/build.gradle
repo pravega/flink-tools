@@ -63,7 +63,6 @@ dependencies {
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     flinkShadowJar "org.apache.flink:flink-avro:${flinkVersion}"
-    flinkShadowJar "org.apache.flink:flink-csv:${flinkVersion}"
     flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
     flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
     flinkShadowJar "org.apache.avro:avro:${avroVersion}"

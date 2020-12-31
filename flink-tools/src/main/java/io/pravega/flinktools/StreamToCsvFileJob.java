@@ -14,27 +14,26 @@ import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
-import io.pravega.flinktools.util.GenericRecordToRow;
+import io.pravega.flinktools.util.GenericRecordToCsv;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
-import org.apache.flink.table.descriptors.ConnectTableDescriptor;
-import org.apache.flink.table.descriptors.Csv;
-import org.apache.flink.table.descriptors.FileSystem;
-import org.apache.flink.types.Row;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Copy a Pravega stream to a set of files on any Flink file system, including S3.
+ * Copy a Pravega stream to a set of CSV files on any Flink file system, including S3.
  * This uses Flink to provide exactly-once, recovery from failures, and parallelism.
- * The stream is assumed to contain UTF-8 strings.
- * When written to files, each event will be followed by a new line.
+ * Input events must be in JSON format.
+ * You must specify the Apache Avro schema (http://avro.apache.org/docs/1.8.2/spec.html)
+ * that corresponds to the JSON events.
  */
 public class StreamToCsvFileJob extends AbstractJob {
     final private static Logger log = LoggerFactory.getLogger(StreamToCsvFileJob.class);
@@ -112,30 +111,26 @@ public class StreamToCsvFileJob extends AbstractJob {
             }
             log.info("Output Avro schema: {}", outputSchema);
 
+            // Convert the flattened record to a CSV string.
+            final GenericRecordToCsv mapper = new GenericRecordToCsv(outputSchema);
+            final DataStream<String> toOutput = flattened
+                    .map(mapper)
+                    .uid("GenericRecordToCsv")
+                    .name("GenericRecordToCsv");
+
             final boolean logOutput = getConfig().getParams().getBoolean("logOutputRecords", false);
             if (logOutput) {
-                flattened.print("output");
+                toOutput.print("output");
             }
 
-            final GenericRecordToRow mapper = new GenericRecordToRow(outputSchema);
-            final DataStream<Row> rows = flattened.map(mapper, mapper.getTypeInformation());
-            rows.printToErr();
-
-            final StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-            tableEnv.createTemporaryView("mystream", rows);
-            final Table table = tableEnv.sqlQuery("select * from mystream");
-            table.printSchema();
-
-            tableEnv.connect(
-                    new FileSystem()
-                            .path("file:///tmp/csv2")
-            )
-                    .inAppendMode()
-                    .withFormat(new Csv())
-                    .withSchema(new org.apache.flink.table.descriptors.Schema()
-                            .schema(table.getSchema()))
-                    .createTemporaryTable("csvTable");
-            tableEnv.from("mystream").insertInto("csvTable");
+            // Write to CSV files.
+            final StreamingFileSink<String> sink = StreamingFileSink
+                    .forRowFormat(new Path(outputFilePath), new SimpleStringEncoder<String>())
+                    .withRollingPolicy(OnCheckpointRollingPolicy.build())
+                    .build();
+            toOutput.addSink(sink)
+                    .uid("file-sink")
+                    .name("file-sink");
 
             log.info("Executing {} job", jobName);
             env.execute(jobName);
