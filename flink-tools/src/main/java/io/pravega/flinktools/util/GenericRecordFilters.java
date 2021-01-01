@@ -41,8 +41,8 @@ public class GenericRecordFilters {
      * An event with a non-ascending counter will be logged and dropped.
      *
      * @param lines The input datastream.
-     * @param keyFieldNames A list of JSON field names used for the key. Fields can be any type.
-     * @param counterFieldName The JSON field name for the counter. Must be numeric.
+     * @param keyFieldNames A list of field names used for the key. Fields can be any type.
+     * @param counterFieldName The field name for the counter. Must be numeric.
      * @return The deduped and sorted datastream.
      */
     public static DataStream<GenericRecord> ascendingCounterFilter(DataStream<GenericRecord> lines, String[] keyFieldNames, String counterFieldName) {

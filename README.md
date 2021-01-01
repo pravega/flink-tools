@@ -15,6 +15,7 @@ It provides the following Flink jobs:
 
 - **stream-to-file**: Continuously copy a Pravega stream to text files on S3, HDFS, or any other Flink-supported file system
 - **stream-to-parquet-file**: Continuously copy a Pravega stream to Parquet files on S3, HDFS, or any other Flink-supported file system
+- **stream-to-csv-file**: Continuously copy a Pravega stream to CSV files on S3, HDFS, or any other Flink-supported file system
 - **stream-to-stream**: Continuously copy a Pravega stream to another Pravega stream, even on a different Pravega cluster
 - **stream-to-console**: Continuously show the contents of a Pravega stream in a human-readable log file
 - **sample-data-generator**: Continuously write synthetic data to Pravega for testing
@@ -63,6 +64,9 @@ flink-tools:run \
 "
 ```
 
+The contents of the Pravega stream will be displayed in the console along
+with a variety of informational messages.
+
 ## Stream-to-File: Continuously copying a Pravega stream to text files
 
 ### Overview
@@ -88,6 +92,7 @@ sample1/2020-05-10--19/part-0-61
 
 For simplicity, the current implementation assumes that events are UTF-8 strings such as CSV or JSON.
 When written to text files, each event will be followed by a new line.
+No other transformation is performed by this job.
 For binary events, you will need to customize the Flink job with the appropriate serialization classes.
 
 Flink offers many options for customizing the behavior when writing files.
@@ -257,6 +262,35 @@ wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parq
 hadoop jar parquet-tools-1.11.1.jar cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
 ```
 
+## Stream-to-CSV-File: Continuously copying a Pravega stream to CSV files
+
+### Overview
+
+This Flink job will continuously copy a Paravega stream to a set of
+comma-separated value (CSV) files on S3, HDFS, NFS, or any other Flink-supported file system.
+
+Like Stream-to-Parquet-File, input events must be in JSON format
+and the corresponding Avro schema must be specified.
+Additionally, events can be deduplicated and flattened if needed.
+
+### Run Locally with Gradle
+
+Use the command below to run the Flink job directly with Gradle.
+All job parameters must be specified within the Gradle `--args` argument.
+
+```shell script
+./gradlew -PmainClass=io.pravega.flinktools.StreamToCsvFileJob \
+flink-tools:run \
+--args="\
+--input-stream examples/sample1 \
+--input-startAtTail false \
+--output /tmp/sample1.csv \
+--avroSchemaFile ../test/SampleEvent.avsc \
+--flatten false \
+--logOutputRecords true \
+"
+```
+
 ## Writing to an NFS volume
 
 Use this procedure to configure the Flink Stream to File job to write to any Kubernetes Persistent Volume, such as a remote NFS volume.
@@ -322,6 +356,19 @@ The event size and event rate can be specified as parameters.
 Events are in the format shown below. 
 ```json
 {"sensorId":0,"eventNumber":42,"timestamp":1591294714504,"timestampStr":"2020-06-04 18:18:34.504","data":"xxxxx..."}
+```
+
+### Run Locally with Gradle
+
+Use the command below to run the Flink job directly with Gradle.
+All job parameters must be specified within the Gradle `--args` argument.
+
+```shell script
+./gradlew -PmainClass=io.pravega.flinktools.SampleDataGeneratorJob \
+flink-tools:run \
+--args="\
+--output-stream examples/sample1 \
+"
 ```
 
 ### Deploy to SDP using the SDP UI
