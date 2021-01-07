@@ -433,7 +433,7 @@ This functionality requires the following:
   If the counter decreases or repeats, the event is considered a duplicate and it is logged and dropped.
   
 Beware of using a timestamp for the counter. 
-A clock going backwards due to an NTP correction may result in large amounts of data being dropped.
+A clock going backwards due to a manual time correction or a leap second may result in data being dropped.
 Events produced faster than the clock resolution may also be dropped.
 
 ## Enabling deduplication
