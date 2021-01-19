@@ -43,6 +43,7 @@ taskManager:
 
 clusterConfiguration:
   restart-strategy: "fixed-delay"
+  restart-strategy.fixed-delay.attempts: "1000000"
   restart-strategy.fixed-delay.delay: "30 s"
   taskmanager.memory.jvm-metaspace.size: "268435456"  # 256 Mi
   taskmanager.memory.task.off-heap.size: "0"

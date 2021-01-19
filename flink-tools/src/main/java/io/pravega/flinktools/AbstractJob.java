@@ -21,6 +21,7 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -110,7 +111,12 @@ public abstract class AbstractJob implements Runnable {
             env.enableCheckpointing(getConfig().getCheckpointIntervalMs(), CheckpointingMode.EXACTLY_ONCE);
             env.getCheckpointConfig().setMinPauseBetweenCheckpoints(getConfig().getCheckpointIntervalMs() / 2);
             env.getCheckpointConfig().setCheckpointTimeout(getConfig().getCheckpointTimeoutMs());
+            // A checkpoint failure will cause the job to fail.
             env.getCheckpointConfig().setTolerableCheckpointFailureNumber(0);
+            // If the job is cancelled manually by the user, do not delete the checkpoint.
+            // This retained checkpoint can be used manually when restarting the job.
+            // In SDP, a retained checkpoint can be used by creating a FlinkSavepoint object.
+            env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         }
 
         // Configure environment for running in a local environment (e.g. in IntelliJ).
