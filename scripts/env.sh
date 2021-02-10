@@ -16,7 +16,7 @@ APP_NAME=flink-tools
 APP_GROUP_ID=${APP_GROUP_ID:-io.pravega}
 APP_ARTIFACT_ID=${APP_ARTIFACT_ID:-flink-tools}
 # Change line below to bump the application version.
-APP_VERSION=${APP_VERSION:-0.2.11}
+APP_VERSION=${APP_VERSION:-0.2.12}
 GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"
 FLINK_IMAGE_TAG="1.10.2-2.12-1.2-W24-2-1c819b576"
 NEW_IMAGE_TAG="${FLINK_IMAGE_TAG}-hadoop2.8.3"
