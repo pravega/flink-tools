@@ -21,9 +21,9 @@ HADOOP_JAR=${ROOT_DIR}/flink-image/files/opt/flink/lib/flink-shaded-hadoop-2-ube
 [ -f ${HADOOP_JAR} ] || wget -O ${HADOOP_JAR} \
     https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.8.3-10.0/flink-shaded-hadoop-2-uber-2.8.3-10.0.jar
 docker build \
-    --tag ${FLINK_IMAGE_REPO}:${NEW_IMAGE_TAG} \
+    --tag flink:${NEW_IMAGE_TAG} \
     --build-arg "FLINK_IMAGE_REPO=${FLINK_IMAGE_REPO}" \
     --build-arg "FLINK_IMAGE_TAG=${FLINK_IMAGE_TAG}" \
     ${ROOT_DIR}/flink-image
-docker save ${FLINK_IMAGE_REPO}:${NEW_IMAGE_TAG} > ${DOCKER_IMAGE_TAR}
+docker save flink:${NEW_IMAGE_TAG} > ${DOCKER_IMAGE_TAR}
 ls -lh ${DOCKER_IMAGE_TAR}

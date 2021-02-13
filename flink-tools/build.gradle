@@ -73,6 +73,9 @@ dependencies {
         flinkShadowJar "io.pravega:pravega-keycloak-client:${pravegaCredentialsVersion}"
     }
 
+    // Schema registry dependencies required due to https://github.com/pravega/flink-connectors/issues/440
+    flinkShadowJar group: 'io.pravega', name: 'schemaregistry-serializers', classifier: 'all', version: schemaRegistryVersion
+
     if (includeHadoopS3.toBoolean()) {
         compile "org.apache.flink:flink-s3-fs-hadoop:${flinkVersion}"
         compile "com.amazonaws:aws-java-sdk:${awsSDKVersion}"
