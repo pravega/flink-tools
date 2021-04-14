@@ -1,0 +1,46 @@
+#
+# Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+name: build
+
+on: [push, pull_request, workflow_dispatch]
+# workflow_dispatch should make manually triggered ci/cd possible
+# workflow file (like this) with `workflow_dispatch` after on should exist on the **master** or default branch,
+# or there will be no ui for a manual trigger. https://github.community/t/workflow-dispatch-event-not-working/128856/2
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '8' # major or semver Java version will be acceptable, see https://github.com/marketplace/actions/setup-java-jdk#basic
+
+      - name: Build 
+        run: ./scripts/build-installer.sh
+
+      - name: Release
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: true
+          prerelease: false
