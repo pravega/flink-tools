@@ -31,14 +31,16 @@ jobs:
       - name: Build 
         run: ./scripts/build-installer.sh
 
+      - name: Set env
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
       - name: Release
         if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/installer/flink-tools-*.tgz
-          draft: false
-          prerelease: false
-          name: Release ${{ github.ref }}
-          tag_name: ${{ github.ref }}
+          files: ./build/installer/flink-tools-*.tgz
+          draft: true
+          name: flink tools ${{ env.RELEASE_VERSION }}
