@@ -33,15 +33,12 @@ jobs:
 
       - name: Release
         if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: true
+          files: build/installer/flink-tools-*.tgz
+          draft: false
           prerelease: false
+          name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref }}
