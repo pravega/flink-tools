@@ -43,4 +43,4 @@ jobs:
         with:
           files: ./build/installer/flink-tools-*.tgz
           draft: true
-          name: flink tools ${{ env.RELEASE_VERSION }}
+          name: flink-tools ${{ env.RELEASE_VERSION }}
