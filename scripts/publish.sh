@@ -14,7 +14,7 @@ ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 
 # If not specified, get Maven repo parameters using kubectl.
-if [[ $(kubectl get ing -n edge repo -o jsonpath="{.spec.tls}") == "" ]]; then
+if [[ $(kubectl get ing -n ${NAMESPACE} repo -o jsonpath="{.spec.tls}") == "" ]]; then
     export MAVEN_PROTOCOL=http
 else
     export MAVEN_PROTOCOL=https
