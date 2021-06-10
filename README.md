@@ -141,8 +141,7 @@ If you would rather use a more automated deployment method, skip to the next sec
    scripts/flink-image-install.sh
    ```
 
-2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`
-   or any other destination.
+2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
    This script will contain parameters for your environment.
    Edit the file as follows.
    
