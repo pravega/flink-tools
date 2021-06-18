@@ -175,9 +175,10 @@ If you would rather use a more automated deployment method, skip to the next sec
    helm del my-stream-to-file-job -n ${NAMESPACE}
    ```
 
-8. To delete the stream
+8. To delete the stream:
+
    If the stream is not in use, please go to the SDP GUI, then to the Pravega section.
-   Locate your scope (should be the same as your ${NAMESPACE}) and stream. Click on the
+   Locate your scope ( should be the same as your ${NAMESPACE} ) and stream. Click on the
    Delete link and confirm
 
 ## Stream-to-Parquet-File: Continuously copying a Pravega stream to Parquet files
