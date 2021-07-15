@@ -10,8 +10,6 @@
 # Delete a Flink job.
 # It is recommend to start Flink jobs using the scripts in the jobs subdirectory.
 
-### set -ex
-
 : ${1?"You must specify the values.yaml file."}
 
 ROOT_DIR=$(readlink -f $(dirname $0)/..)

@@ -53,6 +53,7 @@ while : ; do
     if [[ "$state" == "Running" ]]; then
         break;
     fi
+    sleep 5s
 done
 printf "FlinkCluster started\n"
 

@@ -7,16 +7,8 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-### set -ex
-
-scope="edge"
-stream_name="sensor-stream"
-###ret_policy_type=d
-###ret_policy_value=365
-###target_rate=1
-###scale_factor=1
-###min_segments=1
-###scale_policy_type="BY_RATE_IN_KBYTES_PER_SEC"
+scope=""
+stream_name=""
 
 function usage() {
     echo "Usage: $0 [-s <scope name> -r <stream-name> ] " 1>&2
@@ -36,6 +28,11 @@ while getopts 's:r:h' opt; do
   esac
 done
 shift $((OPTIND -1))
+
+if [[ -z ${stream_name} || -z ${scope} ]]; then
+    usage
+fi
+
 
 # find the pravega controller authentication details
 _get_pravega_cred(){
@@ -104,5 +101,3 @@ _seal_stream
 _delete_stream
 
 exit 0
-
-
