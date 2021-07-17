@@ -9,7 +9,7 @@
 
 # Build and publish the Java JAR to the Maven repo on SDP.
 
-set -ex
+set -e
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
 
@@ -36,6 +36,10 @@ else
     echo publish.sh: Building and publishing from source
     cd ${ROOT_DIR}
     ./gradlew publish ${GRADLE_OPTIONS}
+    if [[ $? != 0 ]]; then
+        printf "\nERROR build failed\n"
+        exit 1;
+    fi
 fi
 
 echo publish.sh: Successfully published to ${MAVEN_URL}

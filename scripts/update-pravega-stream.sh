@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-#set -ex
+### set -ex
 
 scope="edge"
 stream_name="sensor-stream"
