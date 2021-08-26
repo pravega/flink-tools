@@ -56,7 +56,7 @@ public class SampleHeatDataGeneratorJob extends AbstractJob {
         try {
             final String jobName = getConfig().getJobName(SampleHeatDataGeneratorJob.class.getName());
 
-            final double eventsPerSec = getConfig().getParams().getDouble("eventsPerSec", 0.25);
+            final double eventsPerSec = getConfig().getParams().getDouble("eventsPerSec", 1);
             log.info("eventsPerSec: {}", eventsPerSec);
             final int numSensors = getConfig().getParams().getInt("numSensors", 1);
             log.info("numSensors: {}", numSensors);

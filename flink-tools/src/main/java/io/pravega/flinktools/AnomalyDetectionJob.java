@@ -46,8 +46,8 @@ public class AnomalyDetectionJob extends AbstractJob {
             final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
             final String targetField = getConfig().getParams().get("target-field", "sensorType");
             final String targetValue  = getConfig().getParams().get("target-value", "x");
-            final Integer range = getConfig().getParams().getInt("range-in-days", 7);
-            final Integer window = getConfig().getParams().getInt("window-in-hours", 1);
+            final Integer range = getConfig().getParams().getInt("range-in-days", 10);
+            final Integer window = getConfig().getParams().getInt("window-in-hours", 2);
             log.info("input stream: {}", inputStreamConfig);
 
             createStream(inputStreamConfig);
@@ -89,7 +89,7 @@ public class AnomalyDetectionJob extends AbstractJob {
                     .join(agg)
                     .where(((KeySelector<SampleHeatDataGeneratorJob.SampleHeatEvent, Integer>) value -> value.sensorId ))
                     .equalTo(((KeySelector<SampleHeatAggregate, Integer>) v -> Integer.parseInt(v.sensorId)))
-                    .window(TumblingEventTimeWindows.of(Time.seconds(window)))
+                    .window(TumblingEventTimeWindows.of(Time.hours(window)))
                     .apply(new JoinFunction<SampleHeatDataGeneratorJob.SampleHeatEvent, SampleHeatAggregate, SampleHeatDataGeneratorJob.SampleHeatEvent>() {
                         @Override
                         public SampleHeatDataGeneratorJob.SampleHeatEvent join(SampleHeatDataGeneratorJob.SampleHeatEvent first, SampleHeatAggregate second) throws Exception {
