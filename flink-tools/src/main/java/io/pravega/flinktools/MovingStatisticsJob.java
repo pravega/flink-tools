@@ -81,7 +81,7 @@ public class MovingStatisticsJob extends AbstractJob {
 
             final DataStream<SampleHeatAggregate> agg = filtered
                     .keyBy((KeySelector<Tuple4<String, String, Double, Long>, String>) value -> value.f0)
-                    .timeWindow(Time.seconds(range), Time.seconds(window))
+                    .timeWindow(Time.days(range), Time.hours(window))
                     .aggregate(new getStats(), new getWindow())
                     .name("aggregated-events")
                     .uid("aggregated-events");
@@ -91,7 +91,7 @@ public class MovingStatisticsJob extends AbstractJob {
                     .join(agg)
                     .where(((KeySelector<SampleHeatDataGeneratorJob.SampleHeatEvent, Integer>) value -> value.sensorId ))
                     .equalTo(((KeySelector<SampleHeatAggregate, Integer>) v -> Integer.parseInt(v.sensorId)))
-                    .window(TumblingEventTimeWindows.of(Time.seconds(window)))
+                    .window(TumblingEventTimeWindows.of(Time.hours(window)))
                     .apply(new JoinFunction<SampleHeatDataGeneratorJob.SampleHeatEvent, SampleHeatAggregate, SampleHeatDataGeneratorJob.SampleHeatEvent>() {
                         @Override
                         public SampleHeatDataGeneratorJob.SampleHeatEvent join(SampleHeatDataGeneratorJob.SampleHeatEvent first, SampleHeatAggregate second) throws Exception {
