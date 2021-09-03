@@ -126,22 +126,22 @@ public class SampleHeatDataGeneratorJob extends AbstractJob {
         public String sensorType;
         public double data;
         public double stdv;
-        public double sigma1;
-        public double sigma2;
-        public double anomalyAvg;
+        public double movAvg;
+        public double movMax;
+        public double movMin;
 
         public SampleHeatEvent() {}
 
-        public SampleHeatEvent(int sensorId, long eventNumber, long timestamp, String sensorType, double data, double stdv, double sigma1, double sigma2, double anomalyAvg) {
+        public SampleHeatEvent(int sensorId, long eventNumber, long timestamp, String sensorType, double data, double stdv, double movAvg, double movMax, double movMin) {
             this.sensorId = sensorId;
             this.eventNumber = eventNumber;
             this.timestamp = timestamp;
             this.sensorType = sensorType;
             this.data = data;
             this.stdv = stdv;
-            this.sigma1 = sigma1;
-            this.sigma2 = sigma2;
-            this.anomalyAvg = anomalyAvg;
+            this.movAvg = movAvg;
+            this.movMax = movMax;
+            this.movMin = movMin;
         }
 
         @Override
@@ -153,9 +153,9 @@ public class SampleHeatDataGeneratorJob extends AbstractJob {
                     ", sensorType='" + sensorType + '\'' +
                     ", data=" + data +
                     ", stdv=" + stdv +
-                    ", sigma1=" + sigma1 +
-                    ", sigma2=" + sigma2 +
-                    ", anomalyAvg=" + anomalyAvg +
+                    ", movAvg=" + movAvg +
+                    ", movMax=" + movMax +
+                    ", movMin=" + movMin +
                     '}';
         }
     }

@@ -20,35 +20,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.lang.model.SourceVersion;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
 
-public class AnomalyDetectionJob extends AbstractJob {
-    final private static Logger log = LoggerFactory.getLogger(AnomalyDetectionJob.class);
+public class MovingStatisticsJob extends AbstractJob {
+    final private static Logger log = LoggerFactory.getLogger(MovingStatisticsJob.class);
 
     public static void main(String... args) throws Exception {
 
         AppConfiguration config = new AppConfiguration(args);
         log.info("config: {}", config);
-        AnomalyDetectionJob job = new AnomalyDetectionJob(config);
+        MovingStatisticsJob job = new MovingStatisticsJob(config);
         job.run();
     }
 
-    public AnomalyDetectionJob(AppConfiguration appConfiguration){
+    public MovingStatisticsJob(AppConfiguration appConfiguration){
         super(appConfiguration);
     }
 
 
     public void run() {
         try {
-            final String jobName = getConfig().getJobName(AnomalyDetectionJob.class.getName());
+            final String jobName = getConfig().getJobName(MovingStatisticsJob.class.getName());
             final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
             final String targetField = getConfig().getParams().get("target-field", "sensorType");
             final String targetValue  = getConfig().getParams().get("target-value", "x");
             final Integer range = getConfig().getParams().getInt("range-in-days", 10);
             final Integer window = getConfig().getParams().getInt("window-in-hours", 2);
             log.info("input stream: {}", inputStreamConfig);
+
 
             createStream(inputStreamConfig);
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
@@ -79,7 +81,7 @@ public class AnomalyDetectionJob extends AbstractJob {
 
             final DataStream<SampleHeatAggregate> agg = filtered
                     .keyBy((KeySelector<Tuple4<String, String, Double, Long>, String>) value -> value.f0)
-                    .timeWindow(Time.days(range), Time.hours(window))
+                    .timeWindow(Time.seconds(range), Time.seconds(window))
                     .aggregate(new getStats(), new getWindow())
                     .name("aggregated-events")
                     .uid("aggregated-events");
@@ -89,15 +91,15 @@ public class AnomalyDetectionJob extends AbstractJob {
                     .join(agg)
                     .where(((KeySelector<SampleHeatDataGeneratorJob.SampleHeatEvent, Integer>) value -> value.sensorId ))
                     .equalTo(((KeySelector<SampleHeatAggregate, Integer>) v -> Integer.parseInt(v.sensorId)))
-                    .window(TumblingEventTimeWindows.of(Time.hours(window)))
+                    .window(TumblingEventTimeWindows.of(Time.seconds(window)))
                     .apply(new JoinFunction<SampleHeatDataGeneratorJob.SampleHeatEvent, SampleHeatAggregate, SampleHeatDataGeneratorJob.SampleHeatEvent>() {
                         @Override
                         public SampleHeatDataGeneratorJob.SampleHeatEvent join(SampleHeatDataGeneratorJob.SampleHeatEvent first, SampleHeatAggregate second) throws Exception {
                             // mapping first and second
                             first.stdv = second.stdv;
-                            first.sigma1 = second.sigma1;
-                            first.sigma2 = second.sigma2;
-                            first.anomalyAvg = second.anomalyAvg;
+                            first.movAvg = second.movAvg;
+                            first.movMax = second.movMax;
+                            first.movMin = second.movMin;
                             return first;
                         }
                     });
@@ -122,7 +124,7 @@ public class AnomalyDetectionJob extends AbstractJob {
         @Override
         public SampleHeatDataGeneratorJob.SampleHeatEvent map(String in)  throws Exception {
             SampleHeatDataGeneratorJob.SampleHeatEvent ev = mppr.readValue(in, SampleHeatDataGeneratorJob.SampleHeatEvent.class);
-            return new SampleHeatDataGeneratorJob.SampleHeatEvent(ev.sensorId, ev.eventNumber, ev.timestamp, ev.sensorType, ev.data, ev.stdv, ev.sigma1, ev.sigma2, ev.anomalyAvg);
+            return ev;
         }
     }
 
@@ -166,9 +168,7 @@ public class AnomalyDetectionJob extends AbstractJob {
 
                 f.setAccessible(true);
 
-                if ( ((String) f.get(in)).equalsIgnoreCase(targetValue)){
-                    return true;
-                }
+                return ((String) f.get(in)).equalsIgnoreCase(targetValue);
             }
             return false;
         }
@@ -201,9 +201,6 @@ public class AnomalyDetectionJob extends AbstractJob {
             acc.movMax = Math.max(acc.movMax, in.f2);
             acc.movMin = Math.min(acc.movMin, in.f2);
 
-            if ((acc.count > 1 ) && ((in.f2 > acc.sigma1 && acc.sigma1 != 0)|| in.f2 < acc.sigma2 && acc.sigma2 != 0)){
-                acc.anomalyCount += 1;
-            }
             return acc;
         }
 
@@ -211,9 +208,6 @@ public class AnomalyDetectionJob extends AbstractJob {
         public SampleHeatAggregate getResult(SampleHeatAggregate out) {
             out.mean = out.sum / out.count;
             out.stdv = (Math.sqrt(out.count*out.ssq - Math.pow(out.sum, 2))) / out.count;
-            out.sigma1 = out.mean + 2*out.stdv;
-            out.sigma2 = out.mean - 2*out.stdv;
-            out.anomalyAvg = out.anomalyCount * 1.0 / out.count;
             out.movAvg = out.mean;
             return out;
         }
@@ -224,7 +218,6 @@ public class AnomalyDetectionJob extends AbstractJob {
             a1.movMin = Math.min(a1.movMin, a2.movMin);
             a1.sum += a2.sum;
             a1.count += a2.count;
-            a1.anomalyCount += a2.anomalyCount;
 //            a1.ts = Math.max(a1.ts, a2.ts);
 
             return a1;
@@ -248,14 +241,10 @@ public class AnomalyDetectionJob extends AbstractJob {
         public double sum;
         public double ssq;
         public double mean;
-        public double sigma1;
-        public double sigma2;
-        public int anomalyCount;
-        public double anomalyAvg;
         public int count;
-        public double movMin;
-        public double movMax;
         public double movAvg;
+        public double movMax = Double.MIN_VALUE;
+        public double movMin = Double.MAX_VALUE;
         public double stdv;
         public long ts;
 
@@ -267,14 +256,10 @@ public class AnomalyDetectionJob extends AbstractJob {
                     ", sum=" + sum +
                     ", ssq=" + ssq +
                     ", mean=" + mean +
-                    ", sigma1=" + sigma1 +
-                    ", sigma2=" + sigma2 +
-                    ", anomalyCount=" + anomalyCount +
-                    ", anomalyAvg=" + anomalyAvg +
                     ", count=" + count +
-                    ", movMin=" + movMin +
-                    ", movMax=" + movMax +
                     ", movAvg=" + movAvg +
+                    ", movMax=" + movMax +
+                    ", movMin=" + movMin +
                     ", stdv=" + stdv +
                     ", ts=" + ts +
                     '}';
