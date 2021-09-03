@@ -45,8 +45,8 @@ public class MovingStatisticsJob extends AbstractJob {
         try {
             final String jobName = getConfig().getJobName(MovingStatisticsJob.class.getName());
             final AppConfiguration.StreamConfig inputStreamConfig = getConfig().getStreamConfig("input");
-            final String targetField = getConfig().getParams().get("target-field", "sensorType");
-            final String targetValue  = getConfig().getParams().get("target-value", "x");
+            final String targetField = getConfig().getParams().get("filter-by", "sensorType");
+            final String targetValue  = getConfig().getParams().get("filter-value", "x");
             final Integer range = getConfig().getParams().getInt("range-in-days", 10);
             final Integer window = getConfig().getParams().getInt("window-in-hours", 2);
             log.info("input stream: {}", inputStreamConfig);
