@@ -43,4 +43,5 @@ dependencies {
     testCompile "org.apache.flink:flink-avro:${flinkVersion}"
     testCompile "org.mockito:mockito-all:${mockitoVersion}"
     testCompile "org.hamcrest:hamcrest:${hamcrestVersion}"
+
 }

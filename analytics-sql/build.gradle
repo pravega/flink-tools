@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+version 'unknown'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    compile "org.apache.flink:flink-streaming-java_${flinkScalaVersion}:${altFlinkVersion}"
+    compile "io.pravega:pravega-connectors-flink-${altFlinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
+    compile "org.apache.flink:flink-table-planner_${flinkScalaVersion}:${altFlinkVersion}"
+    compile "org.apache.flink:flink-table-api-java-bridge_${flinkScalaVersion}:${altFlinkVersion}"
+    compile "org.apache.flink:flink-clients_${flinkScalaVersion}:${altFlinkVersion}"
+    compile "org.apache.flink:flink-json:${altFlinkVersion}"
+    compile "org.apache.flink:flink-table-planner-blink_${flinkScalaVersion}:${altFlinkVersion}"
+
+    compile "ch.qos.logback:logback-classic:1.1.7"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.8.9"
+
+    compile "org.projectlombok:lombok:1.16.18"
+}
+
+test {
+    useJUnitPlatform()
+}
