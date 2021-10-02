@@ -1,0 +1,68 @@
+
+apply plugin: "java"
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "application"
+apply plugin: "maven"
+
+group = "io.pravega.analyticssql"
+archivesBaseName = "pravega-analytics-sql"
+description = "Pravega Flink Analytics SQL"
+// The default main class.
+mainClassName =  "io.pravega.analyticssql.ApplicationMain"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+//repositories {
+//    mavenCentral()
+//    jcenter()
+//
+//}
+configurations {
+    altFlinkShadowJar // dependencies which go into the shadowJar
+
+    // always exclude these (also from transitive dependencies) since they are provided by Flink
+    altFlinkShadowJar.exclude group: 'org.apache.flink', module: 'force-shading'
+    altFlinkShadowJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
+}
+
+dependencies {
+    altFlinkShadowJar "org.projectlombok:lombok:1.18.20"
+
+    // can be compile-only
+    altFlinkShadowJar "ch.qos.logback:logback-classic:${logbackVersion}"
+    altFlinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
+    altFlinkShadowJar "org.apache.flink:flink-cep_${flinkScalaVersion}:${flinkVersion}"
+
+    // compile
+    altFlinkShadowJar "org.apache.flink:flink-table-api-java-bridge_${flinkScalaVersion}:${altFlinkVersion}"
+    altFlinkShadowJar "org.apache.flink:flink-clients_${flinkScalaVersion}:${altFlinkVersion}"
+    altFlinkShadowJar "org.apache.flink:flink-json:${altFlinkVersion}"
+    altFlinkShadowJar "org.apache.flink:flink-table-planner-blink_${flinkScalaVersion}:${altFlinkVersion}"
+    altFlinkShadowJar "io.pravega:pravega-connectors-flink-${altFlinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
+
+}
+//mainClassName = 'io.pravega.analyticssql.MovingStatisticsSQLJob'
+
+// make compileOnly dependencies available for tests:
+sourceSets {
+    main.compileClasspath += configurations.altFlinkShadowJar
+    main.runtimeClasspath += configurations.altFlinkShadowJar
+
+    test.compileClasspath += configurations.altFlinkShadowJar
+    test.runtimeClasspath += configurations.altFlinkShadowJar
+
+    javadoc.classpath += configurations.altFlinkShadowJar
+}
+
+run.classpath = sourceSets.main.runtimeClasspath
+
+jar {
+    manifest {
+        attributes 'Built-By': System.getProperty('user.name'),
+                'Build-Jdk': System.getProperty('java.version')
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.altFlinkShadowJar]
+}
