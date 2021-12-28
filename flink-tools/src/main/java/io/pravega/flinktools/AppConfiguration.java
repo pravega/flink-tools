@@ -172,7 +172,7 @@ public class AppConfiguration {
             // Copy stream's scope to default scope.
             tempPravegaConfig = tempPravegaConfig.withDefaultScope(stream.getScope());
 
-            final String keycloakConfigBase64 = params.get("keycloak", "");
+            final String keycloakConfigBase64 = params.get(argPrefix + "keycloak", "");
             if (!keycloakConfigBase64.isEmpty()) {
                 // Add Keycloak credentials. This is decoded as base64 to avoid complications with JSON in arguments.
                 log.info("Loading base64-encoded Keycloak credentials from parameter {}keycloak.", argPrefix);
