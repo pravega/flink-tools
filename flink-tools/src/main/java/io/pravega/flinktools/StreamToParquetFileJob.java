@@ -14,6 +14,7 @@ import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
+import io.pravega.flinktools.util.GenericRecordSerializer;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
@@ -73,6 +74,9 @@ public class StreamToParquetFileJob extends AbstractJob {
             final StreamCut startStreamCut = resolveStartStreamCut(inputStreamConfig);
             final StreamCut endStreamCut = resolveEndStreamCut(inputStreamConfig);
             final StreamExecutionEnvironment env = initializeFlinkStreaming();
+
+            // Set serialization schema for avro GenericRecord
+            env.getConfig().addDefaultKryoSerializer(GenericRecord.class, new GenericRecordSerializer(schema));
 
             final FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
                     .withPravegaConfig(inputStreamConfig.getPravegaConfig())
