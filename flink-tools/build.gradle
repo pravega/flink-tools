@@ -57,7 +57,6 @@ dependencies {
     // connectors. These must be in the flinkShadowJar configuration!
     // --------------------------------------------------------------
 
-    flinkShadowJar project(':flink-parquet')
     flinkShadowJar "io.pravega:pravega-connectors-flink-${flinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
     flinkShadowJar "com.github.vladimir-bukhtoyarov:bucket4j-core:${bucket4jVersion}"
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"

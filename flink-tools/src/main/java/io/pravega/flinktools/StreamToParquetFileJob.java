@@ -20,7 +20,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
+import org.apache.flink.formats.parquet.avro.AvroParquetWriters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -120,10 +120,8 @@ public class StreamToParquetFileJob extends AbstractJob {
                 toOutput.print("output");
             }
 
-            // You need to overwrite the flink-parquet as a shadowJar along with withCompressionCodec method calling
-            // when plan to use CompressionCodecName other than UNCOMPRESSED
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema).withCompressionCodec(CompressionCodecName.SNAPPY))
+                    .forBulkFormat(new Path(outputFilePath), AvroParquetWriters.forGenericRecord(outputSchema))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)
