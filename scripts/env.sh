@@ -18,7 +18,7 @@ APP_ARTIFACT_ID=${APP_ARTIFACT_ID:-flink-tools}
 # Change line below to bump the application version.
 APP_VERSION=${APP_VERSION:-0.2.15}
 GRADLE_OPTIONS="${GRADLE_OPTIONS:-"-PincludeHadoopS3=false -Pversion=${APP_VERSION}"}"
-FLINK_IMAGE_TAG="1.10.2-2.12-1.2-3-c76cb7a"
+FLINK_IMAGE_TAG="1.15.2-2.12-1.3.1-20-f59a7da"
 NEW_IMAGE_TAG="${FLINK_IMAGE_TAG}-hadoop2.8.3"
 DOCKER_IMAGE_TAR=flink-${NEW_IMAGE_TAG}.tar
 SDP_INSTALL_PATH=${HOME}/desdp
