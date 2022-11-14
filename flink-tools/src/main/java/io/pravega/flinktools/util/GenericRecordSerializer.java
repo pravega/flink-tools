@@ -35,7 +35,7 @@ public class GenericRecordSerializer extends Serializer<GenericRecord> implement
     public GenericRecord read(Kryo kryo, Input input, Class<GenericRecord> type) {
         try {
             GenericDatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
-            final Decoder decoder = DecoderFactory.get().binaryDecoder(input, null);
+            final Decoder decoder = DecoderFactory.get().directBinaryDecoder(input, null);
 
             return reader.read(null, decoder);
         } catch (IOException e) {
