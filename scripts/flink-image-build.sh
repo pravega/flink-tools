@@ -13,7 +13,6 @@
 set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
-DOCKER_IMAGE_TAR=${ROOT_DIR}/build/${DOCKER_IMAGE_TAR}
 FLINK_IMAGE_REPO="${FLINK_IMAGE_REPO:-devops-repo.isus.emc.com:8116/nautilus/flink}"
 mkdir -p ${ROOT_DIR}/build
 mkdir -p ${ROOT_DIR}/flink-image/files/opt/flink/lib
@@ -25,5 +24,5 @@ docker build \
     --build-arg "FLINK_IMAGE_REPO=${FLINK_IMAGE_REPO}" \
     --build-arg "FLINK_IMAGE_TAG=${FLINK_IMAGE_TAG}" \
     ${ROOT_DIR}/flink-image
-docker save flink:${NEW_IMAGE_TAG} > ${DOCKER_IMAGE_TAR}
-ls -lh ${DOCKER_IMAGE_TAR}
+docker save flink:${NEW_IMAGE_TAG} -o ${SDP_INSTALL_PATH}/${DOCKER_IMAGE_TAR}
+ls -lh ${SDP_INSTALL_PATH}/${DOCKER_IMAGE_TAR}

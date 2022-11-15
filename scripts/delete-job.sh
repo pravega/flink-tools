@@ -14,12 +14,14 @@
 
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
+source ${ROOT_DIR}/scripts/env-sample.sh
 : ${NAMESPACE?"You must export NAMESPACE"}
 
 VALUES_FILE="$1"
 shift
 export RELEASE_NAME=$(basename "${VALUES_FILE}" .yaml)
 
+echo "Deleting job ${RELEASE_NAME} in ${NAMESPACE} namespace"
 helm del -n ${NAMESPACE} ${RELEASE_NAME} || true
 
 kubectl wait --for=delete --timeout=900s FlinkCluster/${RELEASE_NAME} -n ${NAMESPACE} || true

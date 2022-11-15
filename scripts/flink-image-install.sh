@@ -16,5 +16,5 @@ DOCKER_IMAGE_TAR=${SDP_INSTALL_PATH}/${DOCKER_IMAGE_TAR}
 [ -d "${CERTS_PATH}" ] || { echo "Directory ${CERTS_PATH} not found" ; exit 1 ;}
 # Push image to Docker registry with decks-installer.
 ${SDP_INSTALL_EXECUTABLE} push --input ${DOCKER_IMAGE_TAR}  --ca-certs-dir ${CERTS_PATH}
-cat ${ROOT_DIR}/flink-image/ClusterFlinkImage.yaml | sed "s,\${IMAGE_REF},${DOCKER_REGISTRY}/flink:${NEW_IMAGE_TAG},g" | kubectl apply -f -
+cat ${ROOT_DIR}/flink-image/RuntimeFlinkImage.yaml | sed "s,\${IMAGE_REF},${DOCKER_REGISTRY}/flink:${NEW_IMAGE_TAG},g" | kubectl apply -f -
 echo Flink image loaded from ${DOCKER_IMAGE_TAR}.

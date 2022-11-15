@@ -13,7 +13,7 @@ metadata:
   name: {{ $.Release.Name }}
 spec:
   imageRef:
-    name: {{ $.Values.imageRef.name }}
+    name: flink-1.15.2-hadoop
   localStorage:
     replicas: {{ .Values.localStorage.replicas }}
     volumeClaimTemplate:
@@ -21,7 +21,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.localStorage.size | quote }}
-      storageClassName: standard
+      storageClassName: nfs
   volumes:
 {{ toYaml .Values.volumes | indent 4 }}
   storage:

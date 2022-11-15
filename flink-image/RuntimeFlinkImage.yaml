@@ -8,12 +8,12 @@
 apiVersion: nautilus.dellemc.com/v1beta1
 kind: RuntimeImage
 metadata:
-  name: flink-1.15.2
+  name: flink-1.15.2-hadoop
 spec:
   type: flink
   version: 1.15.2
-  displayName: Flink 1.15.2
-  description: Flink 1.15.2 with Scala 2.12
+  displayName: Flink 1.15.2 with hadoop
+  description: Flink 1.15.2 with Scala 2.12 built with flink-tools
   docker:
     sdpRegistry: false
     image: ${IMAGE_REF}
