@@ -14,13 +14,13 @@ import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
+import io.pravega.flinktools.util.FlinkAvroWriterFactory;
 import io.pravega.flinktools.util.GenericRecordSerializer;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.formats.parquet.avro.AvroParquetWriters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -121,7 +121,7 @@ public class StreamToParquetFileJob extends AbstractJob {
             }
 
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), AvroParquetWriters.forGenericRecord(outputSchema))
+                    .forBulkFormat(new Path(outputFilePath), new FlinkAvroWriterFactory(schema, CompressionCodecName.SNAPPY))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)
