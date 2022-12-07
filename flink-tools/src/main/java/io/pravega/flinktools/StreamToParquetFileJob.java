@@ -14,12 +14,13 @@ import io.pravega.client.stream.StreamCut;
 import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.flinktools.util.FlattenGenericRecordMapFunction;
 import io.pravega.flinktools.util.GenericRecordFilters;
+import io.pravega.flinktools.util.FlinkAvroWriterFactory;
+import io.pravega.flinktools.util.GenericRecordSerializer;
 import io.pravega.flinktools.util.JsonToGenericRecordMapFunction;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.formats.parquet.avro.ParquetAvroWriters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -74,6 +75,9 @@ public class StreamToParquetFileJob extends AbstractJob {
             final StreamCut endStreamCut = resolveEndStreamCut(inputStreamConfig);
             final StreamExecutionEnvironment env = initializeFlinkStreaming();
 
+            // Set serialization schema for avro GenericRecord
+            env.getConfig().addDefaultKryoSerializer(GenericRecord.class, new GenericRecordSerializer(schema));
+
             final FlinkPravegaReader<String> flinkPravegaReader = FlinkPravegaReader.<String>builder()
                     .withPravegaConfig(inputStreamConfig.getPravegaConfig())
                     .forStream(inputStreamConfig.getStream(), startStreamCut, endStreamCut)
@@ -116,10 +120,8 @@ public class StreamToParquetFileJob extends AbstractJob {
                 toOutput.print("output");
             }
 
-            // You need to overwrite the flink-parquet as a shadowJar along with withCompressionCodec method calling
-            // when plan to use CompressionCodecName other than UNCOMPRESSED
             final StreamingFileSink<GenericRecord> sink = StreamingFileSink
-                    .forBulkFormat(new Path(outputFilePath), ParquetAvroWriters.forGenericRecord(outputSchema).withCompressionCodec(CompressionCodecName.SNAPPY))
+                    .forBulkFormat(new Path(outputFilePath), new FlinkAvroWriterFactory(schema, CompressionCodecName.SNAPPY))
                     .withRollingPolicy(OnCheckpointRollingPolicy.build())
                     .build();
             toOutput.addSink(sink)

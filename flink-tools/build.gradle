@@ -48,8 +48,8 @@ dependencies {
     // shadow jar and are provided in the lib folder of Flink
     // --------------------------------------------------------------
     compile "org.apache.flink:flink-java:${flinkVersion}"
-    compile "org.apache.flink:flink-streaming-java_${flinkScalaVersion}:${flinkVersion}"
-    compile "org.apache.flink:flink-table-api-java-bridge_${flinkScalaVersion}:${flinkVersion}"
+    compile "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    compile "org.apache.flink:flink-table-api-java-bridge:${flinkVersion}"
     compile "org.apache.flink:flink-table-planner_${flinkScalaVersion}:${flinkVersion}"
 
     // --------------------------------------------------------------
@@ -57,13 +57,12 @@ dependencies {
     // connectors. These must be in the flinkShadowJar configuration!
     // --------------------------------------------------------------
 
-    flinkShadowJar project(':flink-parquet')
     flinkShadowJar "io.pravega:pravega-connectors-flink-${flinkShortVersion}_${flinkScalaVersion}:${pravegaFlinkConnectorVersion}"
     flinkShadowJar "com.github.vladimir-bukhtoyarov:bucket4j-core:${bucket4jVersion}"
     flinkShadowJar "com.google.guava:guava:${guavaVersion}"
     flinkShadowJar "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     flinkShadowJar "org.apache.flink:flink-avro:${flinkVersion}"
-    flinkShadowJar "org.apache.flink:flink-parquet_${flinkScalaVersion}:${flinkVersion}"
+    flinkShadowJar "org.apache.flink:flink-parquet:${flinkVersion}"
     flinkShadowJar "org.apache.parquet:parquet-avro:${parquetVersion}"
     flinkShadowJar "org.apache.avro:avro:${avroVersion}"
     // Also include Avro in compile list so that it gets added to classpath before old version from Hadoop.
@@ -87,7 +86,7 @@ dependencies {
     compile "ch.qos.logback:logback-core:${logbackVersion}"
     compile "org.scala-lang:scala-compiler:${scalaCompilerVersion}"
 
-    testCompile "org.apache.flink:flink-test-utils_${flinkScalaVersion}:${flinkVersion}"
+    testCompile "org.apache.flink:flink-test-utils:${flinkVersion}"
     testCompile "junit:junit:${junitVersion}"
 }
 
@@ -113,6 +112,7 @@ jar {
 
 shadowJar {
     configurations = [project.configurations.flinkShadowJar]
+    zip64 true
 }
 
 publishing {

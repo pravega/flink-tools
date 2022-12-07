@@ -9,6 +9,7 @@
 set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
+source ${ROOT_DIR}/scripts/env-sample.sh
 : ${NAMESPACE?"You must export NAMESPACE"}
 kubectl get secret ${NAMESPACE}-pravega -n ${NAMESPACE} -o jsonpath="{.data.keycloak\.json}" | base64 -d > ${HOME}/keycloak.json
 chmod go-rw ${HOME}/keycloak.json

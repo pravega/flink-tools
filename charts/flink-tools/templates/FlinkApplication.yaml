@@ -15,8 +15,10 @@ spec:
   clusterSelector:
     name: {{ $.Release.Name }}
   flinkVersion: {{ .Values.flinkVersion }}
+  language: Java
   mainClass: {{ .Values.mainClass }}
-  mavenCoordinate: {{ .Values.mavenCoordinate.group }}:{{ .Values.mavenCoordinate.artifact }}:{{ .Values.mavenCoordinate.version }}
+  mainApplicationFile: {{ .Values.mavenCoordinate.group }}:{{ .Values.mavenCoordinate.artifact }}:{{ .Values.mavenCoordinate.version }}
+  mainApplicationFileType: maven
   parallelism: {{ .Values.parallelism }}
   parameters:
     - name: jobName

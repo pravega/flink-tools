@@ -15,6 +15,7 @@
 ### set -ex
 ROOT_DIR=$(readlink -f $(dirname $0)/..)
 source ${ROOT_DIR}/scripts/env.sh
+source ${ROOT_DIR}/scripts/env-sample.sh
 : ${NAMESPACE?"You must export NAMESPACE"}
 
 VALUES_FILE="$1"
@@ -49,7 +50,7 @@ helm upgrade --install --timeout 600s --debug --wait \
 
 printf "Waiting for FlinkCluster to start - should start in about 5 minutes\n"
 while : ; do
-    state=$(kubectl get FlinkCluster -n ${NAMESPACE} ${RELEASE_NAME} | grep ${RELEASE_NAME} | awk '{print $7}')
+    state=$(kubectl get FlinkCluster -n ${NAMESPACE} ${RELEASE_NAME} --no-headers -o jsonpath='{.status.state}')
     if [[ "$state" == "Running" ]]; then
         break;
     fi
@@ -100,7 +101,7 @@ printf "pod/%s started\n" ${app}
 
 printf "Waiting for FlinkApplication %s checkpoint - should be completed in 1 minute\n" ${RELEASE_NAME}
 while : ; do
-    chkpt=$(kubectl get FlinkApplication -n ${NAMESPACE} | grep ${RELEASE_NAME} | awk '{print $6}')
+    chkpt=$(kubectl get FlinkApplication -n ${NAMESPACE} ${RELEASE_NAME} --no-headers -o jsonpath='{.status.checkpoints.status}')
     if [[ "$chkpt" == "OK" ]]; then
         break;
     fi

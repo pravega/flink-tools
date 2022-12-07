@@ -11,6 +11,8 @@
 build/
 data/
 flink-image/files
+flink-tools/bin
+flink-tools/build
 logs/
 out/
 values/local/

@@ -15,7 +15,6 @@ import io.pravega.client.stream.Stream;
 import io.pravega.client.stream.StreamCut;
 import io.pravega.client.stream.impl.DefaultCredentials;
 import io.pravega.connectors.flink.PravegaConfig;
-import io.pravega.flinktools.util.PravegaKeycloakCredentialsFromString;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,19 +171,12 @@ public class AppConfiguration {
             // Copy stream's scope to default scope.
             tempPravegaConfig = tempPravegaConfig.withDefaultScope(stream.getScope());
 
-            final String keycloakConfigBase64 = params.get("keycloak", "");
-            if (!keycloakConfigBase64.isEmpty()) {
-                // Add Keycloak credentials. This is decoded as base64 to avoid complications with JSON in arguments.
-                log.info("Loading base64-encoded Keycloak credentials from parameter {}keycloak.", argPrefix);
-                final String keycloakConfig = new String(Base64.getDecoder().decode(keycloakConfigBase64), StandardCharsets.UTF_8);
-                tempPravegaConfig = tempPravegaConfig.withCredentials(new PravegaKeycloakCredentialsFromString(keycloakConfig));
-            } else {
-                // Add username/password credentials.
-                final String username = params.get("username", "");
-                final String password = params.get("password", "");
-                if (!username.isEmpty() || !password.isEmpty()) {
-                    tempPravegaConfig = tempPravegaConfig.withCredentials(new DefaultCredentials(password, username));
-                }
+            // Add username/password credentials only when specified else
+            // Use keycloak plugin to load auth details from ENV
+            final String username = params.get("username", "");
+            final String password = params.get("password", "");
+            if (!username.isEmpty() && !password.isEmpty()) {
+                tempPravegaConfig = tempPravegaConfig.withCredentials(new DefaultCredentials(password, username));
             }
 
             pravegaConfig = tempPravegaConfig;

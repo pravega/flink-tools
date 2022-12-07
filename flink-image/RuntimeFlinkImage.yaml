@@ -5,14 +5,17 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-apiVersion: flink.nautilus.dellemc.com/v1beta1
-kind: ClusterFlinkImage
+apiVersion: nautilus.dellemc.com/v1beta1
+kind: RuntimeImage
 metadata:
-  name: 1.10.2-2.12-hadoop2.8.3
+  name: flink-1.15.2-hadoop
 spec:
-  apiversion: v1
-  deployerVersion: v2
+  type: flink
+  version: 1.15.2
+  displayName: Flink 1.15.2 with hadoop
+  description: Flink 1.15.2 with Scala 2.12 built with flink-tools
   docker:
+    sdpRegistry: false
     image: ${IMAGE_REF}
-    pullPolicy: Always
-  flinkVersion: 1.10.2
+  environment:
+    JAVA_HOME: /usr/local/openjdk-11

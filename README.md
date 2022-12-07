@@ -42,6 +42,10 @@ To learn more about Pravega, visit http://pravega.io
   These Flink tools may also be used in other Flink installations,
   including open-source, although the exact
   deployment methods depend on your environment and are not documented here.
+- Additional requirements for usage with SDP
+   - [Helm](https://helm.sh/docs/intro/install/) client v3
+
+   - [kubectl](https://kubernetes.io/docs/tasks/tools/) client version 1.20+
 
 ## Stream-to-Console: Continuously show the contents of a Pravega stream in a human-readable log file
 
@@ -104,51 +108,59 @@ for details.
 Below shows how to deploy this Flink job using the SDP UI.
 If you would rather use a more automated deployment method, skip to the next section.
 
-1. Build the JAR file.
+1. Create a project via the SDP UI
+
+2. Build the JAR file.
    ```shell script
    ./gradlew clean shadowJar
    ```
 
-2. Upload the artifact:
+3. Upload the artifact:
    - group: io.pravega
    - artifact: flink-tools
    - version: 0.2.0
    - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
 
-3. Create Flink Cluster.
+4. Create Flink Cluster.
    - Name: stream-to-file
-   - Flink Image: 1.10.2-2.12-hadoop2.8.3 (1.10.2-2.12)
+   - Flink Image: Flink 1.15.2
    - Replicas: 1
    - Task Slots: 1
    
-4. Create New App.
+5. Create New App.
    - Name: stream-to-file
-   - Artifact: io.pravega:fliink-tools:0.2.0
+   - Main Application File Type: maven
+   - Main Application File: io.pravega:fliink-tools:0.2.0
    - Main Class: io.pravega.flinktools.StreamToFileJob
    - Cluster Selectors: name: stream-to-file
    - Parallelism: 1
-   - Flink Version: 1.10.2-2.12
+   - Flink Version: 1.15.2
    - Add Parameters:
-     - output: hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1
+     - output: hdfs://hadoop-hadoop-hdfs-nn.default.svc.cluster.local:9000/tmp/sample1
      - scope: examples (This should match your SDP project name.)
    - Add Stream:
      - input-stream: sample1
 
 ### Deploy to SDP using Helm
 
-1. If you will be using HDFS, you must install the Flink cluster image that includes the Hadoop client library.
-   ```shell script
-   scripts/flink-image-install.sh
-   ```
+1. If you will be using HDFS, you must build and install the Flink cluster image that includes the Hadoop client library.
+   - build the image
+      ```shell script
+      scripts/flink-image-build.sh
+      ```
+   - install the image
+      ```shell script
+      scripts/flink-image-install.sh
+      ```
 
-2. Copy the file `scripts/env-sample.sh` to `scripts/env-local.sh`.
+2. Edit the file `scripts/env-sample.sh`
    This script will contain parameters for your environment.
    Edit the file as follows.
    
    a. Enter your Kubernetes namespace that contains your Pravega stream (NAMESPACE).
-      This is the name of your analytics project.
+      (**This is the name of your analytics project.**)
       
-   Example file `scripts/env-local.sh`:
+   Example file `scripts/env-sample.sh`:
    ```shell script
    export NAMESPACE=examples
    ```
@@ -397,17 +409,18 @@ Below shows how to deploy this Flink job using the SDP UI.
    - Label:
      - key: name
      - value: sample-data-generator-job
-   - Flink Image: 1.10.2-2.12 (1.10.2-2.12)
+   - Flink Image: 1.15.2-2.12-1.3.1-20-f59a7da (1.15.2-2.12-1.3.1-20-f59a7da)
    - Replicas: 1
    - Task Slots: 1
    
 4. Create New App.
    - Name: sample-data-generator-job
-   - Artifact: io.pravega:fliink-tools:0.2.0
+   - Main Application File Type: maven
+   - Main Application File: io.pravega:fliink-tools:0.2.0
    - Main Class: io.pravega.flinktools.SampleDataGeneratorJob
    - Cluster Selectors: name: sample-data-generator-job
    - Parallelism: 1
-   - Flink Version: 1.10.2-2.12
+   - Flink Version: 1.15.2
    - Add Parameters:
      - scope: examples (This should match your SDP project name.)
    - Add Stream:
