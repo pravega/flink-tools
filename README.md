@@ -267,7 +267,7 @@ If the Parquet file is located on a standard Linux file system (including NFS),
 you can use a command similar to the following to view the content.
 
 ```shell script
-scripts/parquet-tools.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
+scripts/parquet-cli.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
 ``` 
 
 If the Parquet file is located on an HDFS cluster in Kubernetes,
@@ -276,8 +276,8 @@ you can use commands similar to the following to view the content.
 ```shell script
 scripts/hadoop-bash.sh
 root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
-wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
-hadoop jar parquet-tools-1.11.1.jar cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
+wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-cli/1.12.2/parquet-cli-1.12.2-runtime.jar
+hadoop jar parquet-cli-1.12.2-runtime.jar org.apache.parquet.cli.Main cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
 ```
 
 ## Stream-to-CSV-File: Continuously copying a Pravega stream to CSV files
