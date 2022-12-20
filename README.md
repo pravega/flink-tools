@@ -118,8 +118,8 @@ If you would rather use a more automated deployment method, skip to the next sec
 3. Upload the artifact:
    - group: io.pravega
    - artifact: flink-tools
-   - version: 0.2.0
-   - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
+   - version: 0.3.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.3.0.jar
 
 4. Create Flink Cluster.
    - Name: stream-to-file
@@ -130,7 +130,7 @@ If you would rather use a more automated deployment method, skip to the next sec
 5. Create New App.
    - Name: stream-to-file
    - Main Application File Type: maven
-   - Main Application File: io.pravega:fliink-tools:0.2.0
+   - Main Application File: io.pravega:flink-tools:0.3.0
    - Main Class: io.pravega.flinktools.StreamToFileJob
    - Cluster Selectors: name: stream-to-file
    - Parallelism: 1
@@ -267,7 +267,7 @@ If the Parquet file is located on a standard Linux file system (including NFS),
 you can use a command similar to the following to view the content.
 
 ```shell script
-scripts/parquet-tools.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
+scripts/parquet-cli.sh cat /tmp/sample1-parquet/2020-08-19--03/part-0-887
 ``` 
 
 If the Parquet file is located on an HDFS cluster in Kubernetes,
@@ -276,8 +276,8 @@ you can use commands similar to the following to view the content.
 ```shell script
 scripts/hadoop-bash.sh
 root@hadoop-8c428aa0-76c0-4f42-8bea-2fc1e8300f78:~#
-wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.1/parquet-tools-1.11.1.jar
-hadoop jar parquet-tools-1.11.1.jar cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
+wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-cli/1.12.2/parquet-cli-1.12.2-runtime.jar
+hadoop jar parquet-cli-1.12.2-runtime.jar org.apache.parquet.cli.Main cat hdfs://hadoop-hadoop-hdfs-nn.examples.svc.cluster.local:9000/tmp/sample1-parquet/2020-08-19--03/part-0-887
 ```
 
 ## Stream-to-CSV-File: Continuously copying a Pravega stream to CSV files
@@ -401,8 +401,8 @@ Below shows how to deploy this Flink job using the SDP UI.
 2. Upload the artifact:
    - group: io.pravega
    - artifact: flink-tools
-   - version: 0.2.0
-   - file: flink-tools/build/libs/pravega-flink-tools-0.2.0.jar
+   - version: 0.3.0
+   - file: flink-tools/build/libs/pravega-flink-tools-0.3.0.jar
 
 3. Create Flink Cluster.
    - Name: sample-data-generator-job
@@ -416,7 +416,7 @@ Below shows how to deploy this Flink job using the SDP UI.
 4. Create New App.
    - Name: sample-data-generator-job
    - Main Application File Type: maven
-   - Main Application File: io.pravega:fliink-tools:0.2.0
+   - Main Application File: io.pravega:flink-tools:0.3.0
    - Main Class: io.pravega.flinktools.SampleDataGeneratorJob
    - Cluster Selectors: name: sample-data-generator-job
    - Parallelism: 1
@@ -517,8 +517,8 @@ Follow these steps to release a new version of Flink Tools to Github Releases.
    git push --tags
    ````
    
-3. Monitor Travis CI at 
-   https://travis-ci.com/github/pravega/flink-tools.
+3. Monitor GitHub Actions CI at
+   https://github.com/pravega/flink-tools/actions.
 
 4. When complete, the installation archive will be available at
    https://github.com/pravega/flink-tools/releases.
